@@ -1,0 +1,2850 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Liams Rymdäventyr">
+    <meta name="theme-color" content="#0a0e27">
+    <meta name="description" content="Ett rymdäventyr där Liam lär sig läsa genom att rädda stjärnljusen i solsystemet!">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Liams Rymdäventyr</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --space-dark: #0a0e27;
+            --space-mid: #1a1f4e;
+            --space-purple: #4a3f8a;
+            --star-yellow: #ffd93d;
+            --rocket-orange: #ff6b35;
+            --rocket-red: #e63946;
+            --success-green: #4ade80;
+            --moon-gray: #c9d1d9;
+            --mars-red: #cd5c5c;
+            --jupiter-orange: #daa06d;
+            --saturn-gold: #f4d03f;
+            --titan-blue: #5dade2;
+            --text-light: #f0f4ff;
+            --text-dim: #8892b0;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--space-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Starfield background */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Main container */
+        .game-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0.9) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--star-yellow);
+            text-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--text-light);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+        .stat-icon {
+            font-size: 1.4rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--star-yellow);
+        }
+
+        /* Main game area */
+        .main-area {
+            flex: 1;
+            display: flex;
+            padding: 20px 40px;
+            gap: 40px;
+        }
+
+        /* Left panel - Rocket building */
+        .rocket-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rocket-container {
+            position: relative;
+            width: 200px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .rocket-part {
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .rocket-part.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .rocket-nose {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--rocket-red) 0%, #c62828 100%);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            position: relative;
+        }
+
+        .rocket-nose::after {
+            content: '';
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--star-yellow);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--star-yellow);
+        }
+
+        .rocket-body {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(90deg, #e0e0e0 0%, #ffffff 50%, #e0e0e0 100%);
+            border-radius: 5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rocket-window {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            border-radius: 50%;
+            border: 4px solid #90a4ae;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .rocket-fins {
+            width: 140px;
+            height: 60px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .fin {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--rocket-orange) 0%, #e65100 100%);
+        }
+
+        .fin-left {
+            clip-path: polygon(100% 0%, 100% 100%, 0% 100%);
+        }
+
+        .fin-right {
+            clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
+        }
+
+        .rocket-engine {
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(180deg, #424242 0%, #212121 100%);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .rocket-flame {
+            width: 50px;
+            height: 80px;
+            background: linear-gradient(180deg, var(--star-yellow) 0%, var(--rocket-orange) 50%, var(--rocket-red) 100%);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation: flicker 0.15s ease-in-out infinite alternate;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .rocket-flame.active {
+            opacity: 1;
+        }
+
+        @keyframes flicker {
+            0% { transform: scaleY(1) scaleX(1); }
+            100% { transform: scaleY(1.1) scaleX(0.95); }
+        }
+
+        .rocket-progress-text {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .rocket-progress-text span {
+            color: var(--star-yellow);
+            font-weight: 600;
+        }
+
+        /* Center panel - Word reading */
+        .word-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .current-destination {
+            text-align: center;
+        }
+
+        .destination-label {
+            font-size: 1rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .destination-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--moon-gray);
+            text-shadow: 0 0 30px rgba(201, 209, 217, 0.5);
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, var(--space-mid) 0%, var(--space-purple) 100%);
+            border-radius: 30px;
+            padding: 60px 100px;
+            text-align: center;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(74, 63, 138, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .word-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translate(-30%, -30%); }
+            50% { transform: translate(30%, 30%); }
+        }
+
+        .word-image {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .word-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: 15px;
+            color: var(--text-light);
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .word-hint {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 20px 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--success-green) 0%, #22c55e 100%);
+            color: #052e16;
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.5);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--space-purple) 0%, #5a4f9a 100%);
+            color: var(--text-light);
+            box-shadow: 0 10px 30px rgba(74, 63, 138, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(74, 63, 138, 0.5);
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, var(--star-yellow) 0%, #f0c000 100%);
+            color: #1a1a00;
+            box-shadow: 0 10px 30px rgba(255, 217, 61, 0.4);
+            padding: 15px 40px;
+            font-size: 1.1rem;
+        }
+
+        .btn-hint:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 217, 61, 0.5);
+        }
+
+        /* Right panel - Space map */
+        .map-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .map-title {
+            font-size: 1.2rem;
+            color: var(--star-yellow);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .space-map {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .map-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            border-radius: 15px;
+            transition: all 0.3s;
+            opacity: 0.4;
+        }
+
+        .map-item.visited {
+            opacity: 1;
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid var(--success-green);
+        }
+
+        .map-item.current {
+            opacity: 1;
+            background: rgba(255, 217, 61, 0.2);
+            border: 1px solid var(--star-yellow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 217, 61, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 217, 61, 0.6); }
+        }
+
+        .map-icon {
+            font-size: 2rem;
+        }
+
+        .map-name {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .map-check {
+            margin-left: auto;
+            color: var(--success-green);
+            font-size: 1.2rem;
+        }
+
+        /* Success celebration overlay */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .celebration-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .celebration-text {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--star-yellow);
+            text-shadow: 0 0 50px rgba(255, 217, 61, 0.8);
+            margin-bottom: 20px;
+            animation: bounce 0.5s ease-out;
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .celebration-subtext {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+        }
+
+        .celebration-stars {
+            font-size: 4rem;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Planet arrival screen */
+        .planet-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--space-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .planet-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .planet-icon {
+            font-size: 10rem;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .planet-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .planet-fact {
+            max-width: 600px;
+            text-align: center;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .planet-fact-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--star-yellow);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .btn-continue {
+            padding: 25px 60px;
+            font-size: 1.5rem;
+        }
+
+        /* Start screen */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--space-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            transition: opacity 0.5s;
+        }
+
+        .start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-title {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--star-yellow);
+            text-shadow: 0 0 50px rgba(255, 217, 61, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .start-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            margin-bottom: 60px;
+        }
+
+        .start-rocket {
+            font-size: 8rem;
+            margin-bottom: 40px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .btn-start {
+            padding: 30px 80px;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--rocket-orange) 0%, var(--rocket-red) 100%);
+            color: white;
+            box-shadow: 0 15px 50px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(255, 107, 53, 0.6);
+        }
+
+        /* Parent mode button */
+        .parent-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Fredoka', sans-serif;
+            z-index: 50;
+        }
+
+        .parent-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+        }
+
+        /* Parent modal */
+        .parent-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .parent-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .pin-container {
+            text-align: center;
+        }
+
+        .pin-title {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--text-light);
+        }
+
+        .pin-input {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .pin-digit {
+            width: 60px;
+            height: 70px;
+            font-size: 2rem;
+            text-align: center;
+            background: var(--space-mid);
+            border: 2px solid var(--space-purple);
+            border-radius: 15px;
+            color: var(--text-light);
+            font-family: 'Space Mono', monospace;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .pin-digit:focus {
+            border-color: var(--star-yellow);
+            box-shadow: 0 0 20px rgba(255, 217, 61, 0.3);
+        }
+
+        .pin-error {
+            color: var(--rocket-red);
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .pin-error.visible {
+            opacity: 1;
+        }
+
+        /* Parent dashboard */
+        .parent-dashboard {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+        }
+
+        .parent-dashboard.active {
+            display: block;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            color: var(--star-yellow);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-stat {
+            background: var(--space-mid);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .dashboard-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--star-yellow);
+        }
+
+        .dashboard-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        .dashboard-section {
+            background: var(--space-mid);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-section-title {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .planet-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            background: var(--space-dark);
+            border: 2px solid var(--space-purple);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .btn-jump {
+            width: 100%;
+            padding: 15px;
+            background: var(--space-purple);
+        }
+
+        .btn-close {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: var(--rocket-red);
+            color: white;
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 15px;
+            background: var(--rocket-red);
+            margin-top: 10px;
+        }
+
+        /* Flying animation */
+        .flying-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--space-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            overflow: hidden;
+        }
+
+        .flying-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .flying-rocket {
+            font-size: 8rem;
+            animation: fly 2s ease-in-out forwards;
+        }
+
+        @keyframes fly {
+            0% { transform: translateY(100vh) rotate(-45deg); }
+            50% { transform: translateY(0) rotate(-45deg); }
+            100% { transform: translateY(-100vh) rotate(-45deg); }
+        }
+
+        .flying-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .flying-star {
+            position: absolute;
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(180deg, white 0%, transparent 100%);
+            animation: starFall 0.5s linear infinite;
+        }
+
+        @keyframes starFall {
+            0% { transform: translateY(-100px); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* Audio controls */
+        .audio-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 50;
+        }
+
+        .audio-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Story intro screens */
+        .story-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--space-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            padding: 40px;
+        }
+
+        .story-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .story-container {
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .story-character {
+            font-size: 8rem;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .story-character-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .story-character-img.nova-talking {
+            animation: novaTalk 0.5s ease-in-out infinite alternate, float 3s ease-in-out infinite;
+        }
+
+        .story-character-name {
+            font-size: 2rem;
+            color: var(--star-yellow);
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 217, 61, 0.5);
+        }
+
+        .story-text {
+            font-size: 1.6rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .story-text .highlight {
+            color: var(--star-yellow);
+            font-weight: 600;
+        }
+
+        .story-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .story-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--space-purple);
+            transition: all 0.3s;
+        }
+
+        .story-dot.active {
+            background: var(--star-yellow);
+            box-shadow: 0 0 15px var(--star-yellow);
+        }
+
+        .story-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn-story {
+            padding: 20px 50px;
+            font-size: 1.3rem;
+        }
+
+        /* Nova talking animation */
+        .nova-talking {
+            animation: novaTalk 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes novaTalk {
+            0% { transform: scale(1) rotate(-5deg); }
+            100% { transform: scale(1.05) rotate(5deg); }
+        }
+
+        /* Glowing stars effect for story */
+        .story-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .story-star-glow {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, var(--star-yellow) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: starGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes starGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Dimming stars effect */
+        .dimming-star {
+            position: absolute;
+            font-size: 2rem;
+            animation: dimStar 3s ease-in-out infinite;
+        }
+
+        @keyframes dimStar {
+            0%, 100% { opacity: 1; filter: brightness(1); }
+            50% { opacity: 0.2; filter: brightness(0.3); }
+        }
+
+        /* Mission banner in game */
+        .mission-banner {
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 217, 61, 0.1) 50%, transparent 100%);
+            padding: 10px 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 217, 61, 0.2);
+            border-bottom: 1px solid rgba(255, 217, 61, 0.2);
+        }
+
+        .mission-text {
+            font-size: 1rem;
+            color: var(--star-yellow);
+        }
+
+        .mission-text .nova-icon {
+            margin-right: 10px;
+        }
+
+        /* ============================================
+           RESPONSIV DESIGN FÖR IPAD OCH MOBIL
+           ============================================ */
+        
+        /* iPad landscape och mindre desktop */
+        @media (max-width: 1200px) {
+            .main-area {
+                padding: 15px 20px;
+                gap: 20px;
+            }
+            
+            .rocket-container {
+                transform: scale(0.8);
+            }
+            
+            .word-card {
+                padding: 40px 60px;
+            }
+            
+            .word-text {
+                font-size: 3rem;
+                letter-spacing: 10px;
+            }
+            
+            .word-image {
+                font-size: 4rem;
+            }
+        }
+        
+        /* iPad portrait */
+        @media (max-width: 1024px) {
+            .main-area {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px 15px;
+            }
+            
+            .rocket-panel {
+                order: 2;
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+                padding: 10px 0;
+            }
+            
+            .rocket-container {
+                transform: scale(0.5) rotate(-90deg);
+                width: auto;
+                height: auto;
+                flex-direction: row;
+            }
+            
+            .rocket-progress-text {
+                margin-top: 0;
+                margin-left: 20px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .word-panel {
+                order: 1;
+                width: 100%;
+            }
+            
+            .map-panel {
+                order: 3;
+                width: 100%;
+            }
+            
+            .space-map {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+            
+            .map-item {
+                padding: 8px 15px;
+            }
+            
+            .map-name {
+                display: none;
+            }
+            
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .logo {
+                font-size: 1.4rem;
+            }
+            
+            .stats-bar {
+                gap: 15px;
+                font-size: 0.9rem;
+            }
+            
+            .stat {
+                font-size: 0.95rem;
+            }
+            
+            .current-destination {
+                margin-bottom: 10px;
+            }
+            
+            .destination-name {
+                font-size: 1.5rem;
+            }
+            
+            .word-card {
+                padding: 30px 40px;
+            }
+            
+            .word-text {
+                font-size: 2.8rem;
+                letter-spacing: 8px;
+            }
+            
+            .word-image {
+                font-size: 3.5rem;
+            }
+            
+            .btn {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-hint {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+        
+        /* Större mobiler / liten iPad */
+        @media (max-width: 768px) {
+            .start-title {
+                font-size: 2.5rem;
+            }
+            
+            .start-subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 30px;
+            }
+            
+            .start-rocket {
+                font-size: 5rem;
+            }
+            
+            .btn-start {
+                padding: 20px 50px;
+                font-size: 1.4rem;
+            }
+            
+            .story-container {
+                padding: 0 15px;
+            }
+            
+            .story-character-img {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .story-character-name {
+                font-size: 1.5rem;
+            }
+            
+            .story-text {
+                font-size: 1.2rem;
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+            
+            .btn-story {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+            
+            .planet-screen {
+                padding: 20px;
+            }
+            
+            .planet-icon {
+                font-size: 6rem;
+            }
+            
+            .planet-title {
+                font-size: 2rem;
+            }
+            
+            .planet-fact {
+                font-size: 1.1rem;
+                padding: 20px;
+            }
+            
+            .btn-continue {
+                padding: 18px 40px;
+                font-size: 1.2rem;
+            }
+            
+            .rocket-panel {
+                display: none; /* Dölj raketen på små skärmar för enkelhet */
+            }
+            
+            .word-text {
+                font-size: 2.2rem;
+                letter-spacing: 6px;
+            }
+            
+            .word-image {
+                font-size: 3rem;
+            }
+            
+            .celebration-text {
+                font-size: 2rem;
+            }
+            
+            .celebration-subtext {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* Touch-enheter: Större klickområden */
+        @media (pointer: coarse) {
+            .btn {
+                min-height: 50px;
+                min-width: 120px;
+            }
+            
+            .pin-digit {
+                width: 55px;
+                height: 65px;
+                font-size: 1.8rem;
+            }
+            
+            .audio-btn {
+                padding: 12px 18px;
+                font-size: 1.6rem;
+            }
+        }
+        
+        /* Förhindra zoom vid dubbelklick på iOS */
+        * {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield background -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+        <source src="SPELMUSIK_Liams_space_adventure.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Focus Music (during gameplay) -->
+    <audio id="focusMusic" loop>
+        <source src="SPELMUSIK_Liams_rymdäventyr_lugn_fokus.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Start Screen -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-title">LIAMS RYMDÄVENTYR</div>
+        <div class="start-subtitle">En läsresa genom solsystemet</div>
+        <div class="start-rocket">🚀</div>
+        <button class="btn btn-start" id="startBtn" onclick="handleStartClick()">STARTA ÄVENTYRET</button>
+    </div>
+
+    <!-- Story Intro Screens -->
+    <div class="story-screen" id="storyScreen">
+        <div class="story-stars" id="storyStars"></div>
+        <div class="story-container">
+            <img src="Nova_bild.png" alt="Nova" class="story-character-img" id="storyCharacter">
+            <div class="story-character-name" id="storyCharacterName">NOVA</div>
+            <div class="story-text" id="storyText">
+                Hej där, modiga äventyrare!
+            </div>
+            <div class="story-dots" id="storyDots"></div>
+            <div class="story-buttons">
+                <button class="btn btn-secondary btn-story" id="storyBackBtn" onclick="prevStoryPage()" style="display: none;">← TILLBAKA</button>
+                <button class="btn btn-primary btn-story" id="storyNextBtn" onclick="nextStoryPage()">NÄSTA →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <header class="header">
+            <div class="logo">LIAMS <span>RYMDÄVENTYR</span></div>
+            <div class="stats-bar">
+                <div class="stat">
+                    <span class="stat-icon">📖</span>
+                    <span>Ord lästa: </span>
+                    <span class="stat-value" id="totalWords">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">🌍</span>
+                    <span>Platser: </span>
+                    <span class="stat-value" id="totalPlanets">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">⭐</span>
+                    <span>Stjärnljus: </span>
+                    <span class="stat-value" id="totalStars">0</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="mission-banner">
+            <div class="mission-text">
+                <span class="nova-icon">⭐</span>
+                <span id="missionText">NOVA: "Läs orden för att ladda raketen med ordkraft!"</span>
+            </div>
+        </div>
+
+        <main class="main-area">
+            <!-- Rocket Panel -->
+            <div class="rocket-panel">
+                <div class="rocket-container">
+                    <div class="rocket-part rocket-nose" id="rocketNose"></div>
+                    <div class="rocket-part rocket-body" id="rocketBody">
+                        <div class="rocket-window"></div>
+                    </div>
+                    <div class="rocket-part rocket-fins" id="rocketFins">
+                        <div class="fin fin-left"></div>
+                        <div class="fin fin-right"></div>
+                    </div>
+                    <div class="rocket-part rocket-engine" id="rocketEngine"></div>
+                    <div class="rocket-flame" id="rocketFlame"></div>
+                </div>
+                <div class="rocket-progress-text">
+                    Raketdelar: <span id="rocketProgress">0</span> / <span id="rocketTotal">5</span>
+                </div>
+            </div>
+
+            <!-- Word Panel -->
+            <div class="word-panel">
+                <div class="current-destination">
+                    <div class="destination-label">Nästa destination</div>
+                    <div class="destination-name" id="destinationName">MÅNEN</div>
+                </div>
+
+                <div class="word-card">
+                    <div class="word-image" id="wordImage">☀️</div>
+                    <div class="word-text" id="wordText">SOL</div>
+                    <div class="word-hint" id="wordHint">Ljuda fram ordet!</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="wordComplete()">JAG KAN LÄSA DET! ✓</button>
+                    <button class="btn btn-secondary" onclick="skipWord()">NYTT ORD →</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-hint" id="hintBtn" onclick="showHint()" style="display: none;">💡 LEDTRÅD</button>
+                </div>
+            </div>
+
+            <!-- Map Panel -->
+            <div class="map-panel">
+                <div class="map-title">⭐ SKATTKARTA ⭐</div>
+                <div class="space-map" id="spaceMap">
+                    <!-- Planets will be inserted here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Word Success Celebration -->
+    <div class="celebration-overlay" id="celebration">
+        <div class="celebration-stars">⭐</div>
+        <div class="celebration-text">FANTASTISKT!</div>
+        <div class="celebration-subtext" id="celebrationText">Du läste ordet rätt!</div>
+    </div>
+
+    <!-- Flying Animation -->
+    <div class="flying-screen" id="flyingScreen">
+        <div class="flying-stars" id="flyingStars"></div>
+        <div class="flying-rocket">🚀</div>
+    </div>
+
+    <!-- Planet Arrival Screen -->
+    <div class="planet-screen" id="planetScreen">
+        <div class="planet-icon" id="planetIcon">🌙</div>
+        <div class="planet-title" id="planetTitle">MÅNEN</div>
+        <div class="planet-fact">
+            <span class="planet-fact-label">VISSTE DU ATT...</span>
+            <span id="planetFact">Månen är den enda platsen utanför jorden som människor har besökt!</span>
+        </div>
+        <button class="btn btn-primary btn-continue" onclick="continuePlaying()">FORTSÄTT ÄVENTYRET →</button>
+    </div>
+
+    <!-- Parent Mode Button -->
+    <button class="parent-btn" id="parentBtn" onclick="openParentModal()">👨‍👩‍👧 Föräldraläge</button>
+
+    <!-- Parent Modal -->
+    <div class="parent-modal" id="parentModal">
+        <div class="pin-container" id="pinContainer">
+            <div class="pin-title">Ange PIN-kod</div>
+            <div class="pin-input">
+                <input type="password" class="pin-digit" maxlength="1" id="pin1" oninput="pinInput(1)">
+                <input type="password" class="pin-digit" maxlength="1" id="pin2" oninput="pinInput(2)">
+                <input type="password" class="pin-digit" maxlength="1" id="pin3" oninput="pinInput(3)">
+                <input type="password" class="pin-digit" maxlength="1" id="pin4" oninput="pinInput(4)">
+            </div>
+            <div class="pin-error" id="pinError">Fel PIN-kod. Försök igen.</div>
+            <button class="btn btn-secondary" onclick="closeParentModal()">Avbryt</button>
+        </div>
+
+        <div class="parent-dashboard" id="parentDashboard">
+            <div class="dashboard-title">📊 Föräldraöversikt</div>
+            
+            <div class="dashboard-stats">
+                <div class="dashboard-stat">
+                    <div class="dashboard-stat-value" id="dashTotalWords">0</div>
+                    <div class="dashboard-stat-label">Ord lästa totalt</div>
+                </div>
+                <div class="dashboard-stat">
+                    <div class="dashboard-stat-value" id="dashPlanetsVisited">0</div>
+                    <div class="dashboard-stat-label">Platser besökta</div>
+                </div>
+                <div class="dashboard-stat">
+                    <div class="dashboard-stat-value" id="dashCurrentLevel">1</div>
+                    <div class="dashboard-stat-label">Aktuell nivå</div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="dashboard-section-title">🚀 Hoppa till plats</div>
+                <select class="planet-select" id="planetSelect">
+                    <!-- Options inserted by JS -->
+                </select>
+                <button class="btn btn-jump" onclick="jumpToPlanet()">Hoppa till vald plats</button>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="dashboard-section-title">📝 Övningsord (hoppade över)</div>
+                <div id="skippedWordsList" style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.8;">
+                    Inga övningsord ännu
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="dashboard-section-title">🌟 Klarade övningsord</div>
+                <div id="practicedWordsList" style="color: var(--success-green); font-size: 0.95rem; line-height: 1.8;">
+                    Inga än
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="dashboard-section-title">⚠️ Återställ</div>
+                <button class="btn btn-reset" onclick="resetProgress()">Återställ all progress</button>
+            </div>
+
+            <button class="btn btn-close" onclick="closeParentModal()">Stäng</button>
+        </div>
+    </div>
+
+    <!-- Audio Button -->
+    <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">🔊</button>
+    
+    <!-- Music Button (only visible during gameplay) -->
+    <button class="audio-btn" id="musicBtn" onclick="toggleFocusMusic()" style="display: none; right: 80px;" title="Stäng av musik">🎵</button>
+
+    <script>
+        // Game Data
+        const DESTINATIONS = [
+            {
+                id: 'moon',
+                name: 'MÅNEN',
+                icon: '🌙',
+                color: '#c9d1d9',
+                facts: [
+                    'PÅ MÅNEN FINNS INGA VINDAR OCH INGET LJUD. DET ÄR HELT TYST!',
+                    'TOLV ASTRONAUTER HAR GÅTT PÅ MÅNEN. DEN FÖRSTA VAR NEIL ARMSTRONG.',
+                    'PÅ MÅNEN VÄGER DU MYCKET MINDRE! DÄR VÄGER DU BARA SOM TVÅ MJÖLKPAKET!',
+                    'MÅNEN HAR TUSENTALS KRATRAR. DE KOMMER FRÅN STENAR SOM TRÄFFAT DEN!',
+                    'MÅNEN ÄR UNGEFÄR LIKA BRED SOM LANDET AUSTRALIEN!',
+                    'MÅNEN RÖRDE SIG FÖRUT MYCKET NÄRMARE JORDEN, MEN DEN ÅKER SAKTA LÄNGRE BORT!',
+                    'NÄR ASTRONAUTERNA GÅR PÅ MÅNEN FINNS DERAS FOTSPÅR KVAR FÖR EVIGT - DET FINNS JU INGEN VIND!'
+                ],
+                wordsNeeded: 5,
+                words: [
+                    { word: 'SOL', image: '☀️' },
+                    { word: 'IS', image: '🧊' },
+                    { word: 'BI', image: '🐝' },
+                    { word: 'ÖN', image: '🏝️' },
+                    { word: 'KO', image: '🐄' },
+                    { word: 'ÅL', image: '🐍' },
+                    { word: 'UR', image: '⌚' },
+                    { word: 'OK', image: '👍' },
+                    { word: 'EN', image: '1️⃣' },
+                    { word: 'GÅ', image: '🚶' },
+                    { word: 'SE', image: '👀' },
+                    { word: 'ETT', image: '1️⃣' },
+                    { word: 'NU', image: '⏰' },
+                    { word: 'TA', image: '🤲' }
+                ]
+            },
+            {
+                id: 'mars',
+                name: 'MARS',
+                icon: '🔴',
+                color: '#cd5c5c',
+                facts: [
+                    'MARS KALLAS DEN RÖDA PLANETEN! FÄRGEN KOMMER FRÅN ROSTIGT JÄRN I MARKEN.',
+                    'PÅ MARS FINNS OLYMPUS MONS - DET HÖGSTA BERGET I HELA SOLSYSTEMET!',
+                    'EN DAG PÅ MARS ÄR NÄSTAN LIKA LÅNG SOM EN DAG PÅ JORDEN.',
+                    'MARS HAR TVÅ SMÅ MÅNAR SOM HETER PHOBOS OCH DEIMOS.',
+                    'DET FINNS ROBOTAR PÅ MARS SOM UTFORSKAR PLANETEN ÅT OSS!',
+                    'PÅ MARS KAN DET BLI JÄTTESTORA SANDSTORMAR SOM TÄCKER HELA PLANETEN!',
+                    'MARS HAR IS PÅ POLERNA, PRECIS SOM JORDEN!'
+                ],
+                wordsNeeded: 6,
+                words: [
+                    { word: 'BIL', image: '🚗' },
+                    { word: 'HUS', image: '🏠' },
+                    { word: 'SOL', image: '☀️' },
+                    { word: 'BUSS', image: '🚌' },
+                    { word: 'MUS', image: '🐭' },
+                    { word: 'HAV', image: '🌊' },
+                    { word: 'DAG', image: '🌞' },
+                    { word: 'NÅL', image: '🪡' },
+                    { word: 'TAK', image: '🏠' },
+                    { word: 'BEN', image: '🦴' },
+                    { word: 'MAT', image: '🍽️' },
+                    { word: 'BOK', image: '📖' },
+                    { word: 'SÅG', image: '🪚' },
+                    { word: 'VÄG', image: '🛤️' },
+                    { word: 'BÅT', image: '⛵' },
+                    { word: 'TÅG', image: '🚂' },
+                    { word: 'LEK', image: '🎮' },
+                    { word: 'SNÖ', image: '❄️' }
+                ]
+            },
+            {
+                id: 'jupiter',
+                name: 'JUPITER',
+                icon: '🟠',
+                color: '#daa06d',
+                facts: [
+                    'JUPITER ÄR SÅ STOR ATT ÖVER TUSEN JORDKLOT FÅR PLATS INUTI DEN!',
+                    'JUPITERS STORA RÖDA FLÄCK ÄR EN STORM SOM VARAT I HUNDRATALS ÅR!',
+                    'JUPITER HAR MINST 95 MÅNAR! DEN STÖRSTA HETER GANYMEDES.',
+                    'JUPITER ÄR EN GASPLANET. DEN HAR INGEN FAST MARK ATT STÅ PÅ!',
+                    'JUPITER SNURRAR SNABBAST AV ALLA PLANETER - EN DAG TAR BARA 10 TIMMAR!',
+                    'JUPITER SKYDDAR JORDEN FRÅN FARLIGA KOMETER MED SIN STARKA GRAVITATION!',
+                    'JUPITER HAR RINGAR, MEN DE ÄR MYCKET SVAGARE ÄN SATURNUS RINGAR!'
+                ],
+                wordsNeeded: 6,
+                words: [
+                    { word: 'KATT', image: '🐱' },
+                    { word: 'HUND', image: '🐕' },
+                    { word: 'FISK', image: '🐟' },
+                    { word: 'GLAS', image: '🥛' },
+                    { word: 'STEN', image: '🪨' },
+                    { word: 'RING', image: '💍' },
+                    { word: 'BOLL', image: '⚽' },
+                    { word: 'SKOG', image: '🌲' },
+                    { word: 'TALL', image: '🌲' },
+                    { word: 'ÄPPLE', image: '🍎' },
+                    { word: 'BANAN', image: '🍌' },
+                    { word: 'LAMPA', image: '💡' },
+                    { word: 'STOL', image: '🪑' },
+                    { word: 'BORD', image: '🪑' },
+                    { word: 'DÖRR', image: '🚪' },
+                    { word: 'FÅGEL', image: '🐦' },
+                    { word: 'BLOMMA', image: '🌸' },
+                    { word: 'TRÄD', image: '🌳' }
+                ]
+            },
+            {
+                id: 'saturn',
+                name: 'SATURNUS',
+                icon: '🪐',
+                color: '#f4d03f',
+                facts: [
+                    'SATURNUS HAR VACKRA RINGAR RUNT SIG! RINGARNA ÄR GJORDA AV IS OCH STEN.',
+                    'SATURNUS RINGAR ÄR JÄTTESTORA MEN BARA CIRKA 10 METER TJOCKA!',
+                    'SATURNUS ÄR SÅ LÄTT ATT DEN SKULLE FLYTA PÅ VATTEN - OM DET FANNS EN SÅ STOR SJÖ!',
+                    'SATURNUS HAR ÖVER 140 MÅNAR! DEN STÖRSTA HETER TITAN.',
+                    'EN RYMDFARKOST SOM HETER CASSINI STUDERADE SATURNUS I 13 ÅR!',
+                    'VINDARNA PÅ SATURNUS KAN BLI ÖVER 1800 KILOMETER I TIMMEN!',
+                    'SATURNUS ÄR DEN NÄST STÖRSTA PLANETEN I VÅRT SOLSYSTEM!'
+                ],
+                wordsNeeded: 7,
+                words: [
+                    { word: 'RAKET', image: '🚀' },
+                    { word: 'MÅNE', image: '🌙' },
+                    { word: 'KOMET', image: '☄️' },
+                    { word: 'MOTOR', image: '⚙️' },
+                    { word: 'KRAFT', image: '💪' },
+                    { word: 'FLYGA', image: '✈️' },
+                    { word: 'LYSER', image: '💡' },
+                    { word: 'GLASS', image: '🍦' },
+                    { word: 'VATTEN', image: '💧' },
+                    { word: 'KAFFE', image: '☕' },
+                    { word: 'PIZZA', image: '🍕' },
+                    { word: 'CYKEL', image: '🚲' },
+                    { word: 'SOVER', image: '😴' },
+                    { word: 'LÄSER', image: '📖' },
+                    { word: 'SPELAR', image: '🎮' },
+                    { word: 'HOPPAR', image: '🦘' }
+                ]
+            },
+            {
+                id: 'titan',
+                name: 'TITAN',
+                icon: '🟡',
+                color: '#5dade2',
+                facts: [
+                    'TITAN ÄR DEN ENDA MÅNEN I SOLSYSTEMET MED EN TJOCK ATMOSFÄR!',
+                    'PÅ TITAN FINNS SJÖAR OCH FLODER, MEN DE ÄR FYLLDA MED FLYTANDE GAS!',
+                    'TITAN ÄR STÖRRE ÄN PLANETEN MERKURIUS!',
+                    'DET REGNAR PÅ TITAN, MEN REGNET ÄR INTE VATTEN UTAN METAN!',
+                    'TITAN HAR BERG AV IS ISTÄLLET FÖR STEN!',
+                    'EN RYMDFARKOST SOM HETER HUYGENS LANDADE PÅ TITAN ÅR 2005!',
+                    'PÅ TITAN SKULLE DU KUNNA FLYGA MED VINGAR PÅ ARMARNA - LUFTEN ÄR SÅ TJOCK!'
+                ],
+                wordsNeeded: 7,
+                words: [
+                    { word: 'PLANET', image: '🌍' },
+                    { word: 'HIMMEL', image: '⛅' },
+                    { word: 'STJÄRNA', image: '⭐' },
+                    { word: 'RYMDEN', image: '🌌' },
+                    { word: 'VACKER', image: '😍' },
+                    { word: 'FRYSER', image: '🥶' },
+                    { word: 'GRIS', image: '🐷' },
+                    { word: 'FAMILJ', image: '👨‍👩‍👧' },
+                    { word: 'MAMMA', image: '👩' },
+                    { word: 'PAPPA', image: '👨' },
+                    { word: 'SYSTER', image: '👧' },
+                    { word: 'BROR', image: '👦' },
+                    { word: 'SKOLA', image: '🏫' },
+                    { word: 'LÄRARE', image: '👩‍🏫' },
+                    { word: 'VÄNNER', image: '👫' },
+                    { word: 'FOTBOLL', image: '⚽' }
+                ]
+            },
+            {
+                id: 'uranus',
+                name: 'URANUS',
+                icon: '🔵',
+                color: '#48dbfb',
+                facts: [
+                    'URANUS SNURRAR PÅ SIDAN! DET ÄR SOM OM PLANETEN RULLAR RUNT SOLEN.',
+                    'URANUS ÄR EN ISPLANET MED TEMPERATURER NER TILL MINUS 224 GRADER!',
+                    'URANUS HAR 27 MÅNAR SOM ALLA ÄR UPPKALLADE EFTER FIGURER FRÅN BÖCKER!',
+                    'ETT ÅR PÅ URANUS TAR 84 JORDÅR! SÅ LÄNGE TAR DET ATT ÅKA RUNT SOLEN.',
+                    'URANUS UPPTÄCKTES ÅR 1781. DEN VAR DEN FÖRSTA PLANETEN SOM HITTADES MED TELESKOP!',
+                    'URANUS HAR RINGAR PRECIS SOM SATURNUS, FAST DE ÄR MYCKET MÖRKARE!',
+                    'URANUS FÅR SIN BLÅ FÄRG FRÅN GAS SOM HETER METAN!'
+                ],
+                wordsNeeded: 8,
+                words: [
+                    { word: 'TELESKOP', image: '🔭' },
+                    { word: 'GALAX', image: '🌌' },
+                    { word: 'ASTRONAUT', image: '👨‍🚀' },
+                    { word: 'KRATER', image: '🕳️' },
+                    { word: 'METEOR', image: '☄️' },
+                    { word: 'DIMMA', image: '🌫️' },
+                    { word: 'STORM', image: '⛈️' },
+                    { word: 'FROST', image: '❄️' },
+                    { word: 'SOMMAR', image: '☀️' },
+                    { word: 'VINTER', image: '⛄' },
+                    { word: 'HÖST', image: '🍂' },
+                    { word: 'VÅR', image: '🌷' },
+                    { word: 'FRUKOST', image: '🥣' },
+                    { word: 'MIDDAG', image: '🍝' },
+                    { word: 'KVÄLLSMAT', image: '🍽️' },
+                    { word: 'MORGON', image: '🌅' },
+                    { word: 'KVÄLL', image: '🌆' }
+                ]
+            },
+            {
+                id: 'neptune',
+                name: 'NEPTUNUS',
+                icon: '🔷',
+                color: '#4169e1',
+                facts: [
+                    'NEPTUNUS HAR DE SNABBASTE VINDARNA I SOLSYSTEMET - ÖVER 2000 KM I TIMMEN!',
+                    'NEPTUNUS ÄR SÅ LÅNGT BORT ATT DET TOG RYMDSONDEN VOYAGER 12 ÅR ATT NÅ DIT!',
+                    'NEPTUNUS HAR EN STOR MÖRK STORM SOM LIKNAR JUPITERS RÖDA FLÄCK!',
+                    'NEPTUNUS STÖRSTA MÅNE TRITON HAR GEJSRAR SOM SPRUTAR IS!',
+                    'ETT ÅR PÅ NEPTUNUS TAR 165 JORDÅR!',
+                    'NEPTUNUS UPPTÄCKTES GENOM MATEMATIK INNAN NÅGON SÅG DEN I TELESKOP!',
+                    'NEPTUNUS BLÅ FÄRG KOMMER FRÅN METAN I ATMOSFÄREN!'
+                ],
+                wordsNeeded: 8,
+                words: [
+                    { word: 'UNIVERSUM', image: '🌌' },
+                    { word: 'SOLSYSTEM', image: '☀️' },
+                    { word: 'ROTATION', image: '🔄' },
+                    { word: 'SATELLIT', image: '🛰️' },
+                    { word: 'LANDNING', image: '🛬' },
+                    { word: 'DJUR', image: '🦁' },
+                    { word: 'ELEFANT', image: '🐘' },
+                    { word: 'LEJON', image: '🦁' },
+                    { word: 'GIRAFF', image: '🦒' },
+                    { word: 'PINGVIN', image: '🐧' },
+                    { word: 'DELFIN', image: '🐬' },
+                    { word: 'FJÄRIL', image: '🦋' },
+                    { word: 'SPINDEL', image: '🕷️' },
+                    { word: 'KANIN', image: '🐰' },
+                    { word: 'HAMSTER', image: '🐹' },
+                    { word: 'SKÖLDPADDA', image: '🐢' }
+                ]
+            },
+            {
+                id: 'pluto',
+                name: 'PLUTO',
+                icon: '⚪',
+                color: '#b8860b',
+                facts: [
+                    'PLUTO ÄR EN DVÄRGPLANET LÄNGST BORT. DET TAR 248 ÅR ATT ÅKA ETT VARV RUNT SOLEN!',
+                    'PLUTO HAR ETT HJÄRTA! DET ÄR ETT STORT HJÄRTFORMAT OMRÅDE PÅ YTAN.',
+                    'PLUTO ÄR MINDRE ÄN VÅR MÅNE!',
+                    'PLUTO HAR FEM MÅNAR. DEN STÖRSTA HETER CHARON.',
+                    'RYMDSONDEN NEW HORIZONS FLÖG FÖRBI PLUTO ÅR 2015 OCH TOG FANTASTISKA BILDER!',
+                    'PÅ PLUTO FINNS BERG AV IS SOM ÄR LIKA HÖGA SOM ALPERNA!',
+                    'FRÅN PLUTO SER SOLEN UT SOM EN LJUS STJÄRNA EFTERSOM DEN ÄR SÅ LÅNGT BORT!'
+                ],
+                wordsNeeded: 8,
+                words: [
+                    { word: 'DVÄRGPLANET', image: '⚪' },
+                    { word: 'ISTÄCKE', image: '🧊' },
+                    { word: 'UPPTÄCKT', image: '🔍' },
+                    { word: 'AVSTÅND', image: '📏' },
+                    { word: 'KOMETER', image: '☄️' },
+                    { word: 'RYMDFÄRD', image: '🚀' },
+                    { word: 'EXPEDITION', image: '🗺️' },
+                    { word: 'UTFORSKNING', image: '🔭' },
+                    { word: 'ÄVENTYR', image: '🗺️' },
+                    { word: 'MODIG', image: '💪' },
+                    { word: 'HJÄLTE', image: '🦸' },
+                    { word: 'VINNARE', image: '🏆' },
+                    { word: 'GRATTIS', image: '🎉' },
+                    { word: 'FANTASTISK', image: '🌟' },
+                    { word: 'UNDERBAR', image: '✨' },
+                    { word: 'STJÄRNKLAR', image: '⭐' }
+                ]
+            }
+        ];
+
+        // Story Data
+        const STORY_INTRO = [
+            {
+                character: '⭐',
+                name: 'NOVA',
+                text: 'HEJ LIAM! JAG HETER <span class="highlight">NOVA</span> OCH JAG ÄR EN STJÄRNVÄKTARE SOM BOR PÅ MÅNEN.'
+            },
+            {
+                character: '⭐',
+                name: 'NOVA',
+                text: 'JAG BEHÖVER DIN HJÄLP! NÅGOT HEMSKT HAR HÄNT...'
+            },
+            {
+                character: '🌑',
+                name: 'NOVA',
+                text: 'ALLA <span class="highlight">STJÄRNLJUS</span> I SOLSYSTEMET HÅLLER PÅ ATT SLOCKNA! UTAN DEM BLIR DET MÖRKT OCH KALLT ÖVERALLT.'
+            },
+            {
+                character: '😢',
+                name: 'NOVA',
+                text: 'JAG KAN INTE TÄNDA DEM SJÄLV... MEN DU KAN!'
+            },
+            {
+                character: '📖',
+                name: 'NOVA',
+                text: 'DET FINNS EN MAGISK KRAFT SOM KALLAS <span class="highlight">ORDKRAFT</span>. NÄR DU LÄSER ETT ORD RÄTT SKICKAS ENERGI UT I RYMDEN!'
+            },
+            {
+                character: '🚀',
+                name: 'NOVA',
+                text: 'FÖR VARJE ORD DU LÄSER LADDAS DIN RAKET MED ORDKRAFT. NÄR RAKETEN ÄR FULL KAN DU FLYGA TILL EN NY PLANET!'
+            },
+            {
+                character: '🌙',
+                name: 'NOVA',
+                text: 'PÅ VARJE PLANET TÄNDER DU ETT <span class="highlight">STJÄRNLJUS</span> OCH LÄGGER TILL DEN PÅ DIN SKATTKARTA!'
+            },
+            {
+                character: '⭐',
+                name: 'NOVA',
+                text: 'JAG HAR LETAT I HELA GALAXEN EFTER NÅGON MODIG NOG ATT HJÄLPA MIG... OCH JAG HITTADE <span class="highlight">DIG</span>!'
+            },
+            {
+                character: '🌟',
+                name: 'NOVA',
+                text: 'ÄR DU REDO ATT RÄDDA STJÄRNLJUSEN, LIAM? VÅRT ÄVENTYR BÖRJAR PÅ <span class="highlight">MÅNEN</span>!'
+            }
+        ];
+
+        // Mission messages for each destination
+        const MISSION_MESSAGES = [
+            'NOVA: "Läs orden för att ladda raketen med ordkraft!"',
+            'NOVA: "Bra jobbat! Månen lyser igen! Nu till Mars!"',
+            'NOVA: "Mars stjärnljus är tänt! Jupiter väntar!"',
+            'NOVA: "Fantastiskt! Nu flyger vi till Saturnus!"',
+            'NOVA: "Saturnus ringar glittrar! Nästa stopp: Titan!"',
+            'NOVA: "Titan lyser! Uranus behöver vår hjälp!"',
+            'NOVA: "Uranus är räddad! Bara Neptunus och Pluto kvar!"',
+            'NOVA: "Neptunus stjärnljus lyser! Sista planeten: Pluto!"'
+        ];
+
+        // Nova messages when arriving at planets
+        const ARRIVAL_MESSAGES = [
+            'DU KLARADE DET! MÅNENS STJÄRNLJUS LYSER IGEN!',
+            'MARS STJÄRNLJUS ÄR TÄNT! DU ÄR EN RIKTIG HJÄLTE!',
+            'JUPITERS STORA STJÄRNLJUS LYSER! UNDERBART!',
+            'SATURNUS RINGAR GLITTRAR AV STJÄRNLJUS!',
+            'TITAN LYSER UPP HELA SATURNUS MÅNSYSTEM!',
+            'URANUS STJÄRNLJUS DANSAR I RYMDEN!',
+            'NEPTUNUS BLÅ STJÄRNLJUS ÄR TÄNT!',
+            'PLUTO LYSER! DU HAR RÄDDAT HELA SOLSYSTEMET!'
+        ];
+
+        // Game State
+        let gameState = {
+            currentDestinationIndex: 0,
+            wordsReadForCurrentDestination: 0,
+            totalWordsRead: 0,
+            totalStars: 0,
+            visitedDestinations: [],
+            currentWordIndex: 0,
+            usedWordIndices: [],
+            audioEnabled: true,
+            musicEnabled: true,
+            hasSeenIntro: false,
+            skippedWords: [],        // Ord som hoppats över { word, image, attempts }
+            practicedWords: []       // Ord som klarats efter övning
+        };
+
+        // Story state
+        let currentStoryPage = 0;
+
+        // DOM Elements
+        const startScreen = document.getElementById('startScreen');
+        const gameContainer = document.getElementById('gameContainer');
+        const wordText = document.getElementById('wordText');
+        const wordImage = document.getElementById('wordImage');
+        const destinationName = document.getElementById('destinationName');
+        const celebration = document.getElementById('celebration');
+        const planetScreen = document.getElementById('planetScreen');
+        const flyingScreen = document.getElementById('flyingScreen');
+
+        // Background music
+        let bgMusic;
+        let focusMusic;
+        let musicStarted = false;
+        let focusMusicStarted = false;
+
+        function initMusic() {
+            bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.4;
+            
+            focusMusic = document.getElementById('focusMusic');
+            focusMusic.volume = 0.25; // Lägre volym för fokusmusik
+        }
+
+        function startMusic() {
+            if (bgMusic && !musicStarted && gameState.audioEnabled) {
+                bgMusic.play().then(() => {
+                    musicStarted = true;
+                }).catch(e => {
+                    console.log('Musik kunde inte startas automatiskt:', e);
+                });
+            }
+        }
+
+        function stopMusic() {
+            if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                musicStarted = false;
+            }
+        }
+
+        function startFocusMusic() {
+            if (focusMusic && !focusMusicStarted && gameState.audioEnabled && gameState.musicEnabled) {
+                focusMusic.play().then(() => {
+                    focusMusicStarted = true;
+                    updateMusicButton();
+                }).catch(e => {
+                    console.log('Fokusmusik kunde inte startas:', e);
+                });
+            }
+        }
+
+        function stopFocusMusic() {
+            if (focusMusic) {
+                focusMusic.pause();
+                focusMusic.currentTime = 0;
+                focusMusicStarted = false;
+                updateMusicButton();
+            }
+        }
+
+        function toggleFocusMusic() {
+            gameState.musicEnabled = !gameState.musicEnabled;
+            if (gameState.musicEnabled) {
+                startFocusMusic();
+            } else {
+                stopFocusMusic();
+            }
+            updateMusicButton();
+            saveGame();
+        }
+
+        function updateMusicButton() {
+            const btn = document.getElementById('musicBtn');
+            if (btn) {
+                btn.textContent = gameState.musicEnabled ? '🎵' : '🎵✗';
+                btn.title = gameState.musicEnabled ? 'Stäng av musik' : 'Sätt på musik';
+            }
+        }
+
+        function fadeOutMusic(duration = 1000) {
+            if (bgMusic && musicStarted) {
+                const startVolume = bgMusic.volume;
+                const steps = 20;
+                const volumeStep = startVolume / steps;
+                const interval = duration / steps;
+                
+                const fadeInterval = setInterval(() => {
+                    if (bgMusic.volume > volumeStep) {
+                        bgMusic.volume -= volumeStep;
+                    } else {
+                        bgMusic.volume = 0;
+                        bgMusic.pause();
+                        bgMusic.currentTime = 0;
+                        bgMusic.volume = startVolume;
+                        musicStarted = false;
+                        clearInterval(fadeInterval);
+                    }
+                }, interval);
+            }
+        }
+
+        function handleStartClick() {
+            // Start music on first interaction
+            startMusic();
+            // Then show story intro
+            showStoryIntro();
+        }
+
+        // Audio Context
+        let audioContext;
+
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(type) {
+            if (!gameState.audioEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'success':
+                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialDecayTo = 0.01;
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                    break;
+                case 'complete':
+                    oscillator.frequency.setValueAtTime(392, audioContext.currentTime); // G4
+                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime + 0.15); // C5
+                    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.3); // E5
+                    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.45); // G5
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.6);
+                    break;
+                case 'click':
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialDecayTo = 0.01;
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                    break;
+            }
+        }
+
+        function toggleAudio() {
+            gameState.audioEnabled = !gameState.audioEnabled;
+            document.getElementById('audioBtn').textContent = gameState.audioEnabled ? '🔊' : '🔇';
+            saveGame();
+        }
+
+        // Text-to-speech for Nova
+        let speechSynthesis = window.speechSynthesis;
+        let swedishVoice = null;
+
+        function initSpeech() {
+            // Find Swedish female voice - prioritize Sofie
+            const loadVoices = () => {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority: Sofie > other Swedish > English female > any
+                swedishVoice = voices.find(voice => voice.name.toLowerCase().includes('sofie') && voice.lang.startsWith('sv')) ||
+                               voices.find(voice => voice.lang.startsWith('sv')) ||
+                               voices.find(voice => voice.lang.startsWith('en') && (voice.name.toLowerCase().includes('samantha') || voice.name.toLowerCase().includes('victoria'))) ||
+                               voices[0];
+                
+                // Log available voices for debugging
+                console.log('Tillgängliga röster:', voices.map(v => `${v.name} (${v.lang})`));
+                console.log('Vald röst:', swedishVoice?.name);
+            };
+            
+            loadVoices();
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+        }
+
+        function speakText(text) {
+            if (!gameState.audioEnabled || !speechSynthesis) return;
+            
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+            
+            // Clean text from HTML tags
+            const cleanText = text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.voice = swedishVoice;
+            utterance.lang = 'sv-SE';
+            utterance.rate = 0.7; // Långsammare för tydlighet
+            utterance.pitch = 2.0; // Högre pitch för gullig robotkänsla (max är 2.0)
+            utterance.volume = 1.0;
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        function stopSpeech() {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
+            }
+        }
+
+        // Story intro functions
+        function showStoryIntro() {
+            initAudio();
+            initSpeech();
+            playSound('click');
+            
+            // Check if user has already seen intro
+            if (gameState.hasSeenIntro && gameState.totalWordsRead > 0) {
+                startScreen.classList.add('hidden');
+                startGame();
+                return;
+            }
+            
+            startScreen.classList.add('hidden');
+            currentStoryPage = 0;
+            updateStoryPage();
+            document.getElementById('storyScreen').classList.add('active');
+            createStoryStars();
+        }
+
+        function createStoryStars() {
+            const storyStars = document.getElementById('storyStars');
+            storyStars.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.className = 'story-star-glow';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                storyStars.appendChild(star);
+            }
+        }
+
+        function updateStoryPage() {
+            const story = STORY_INTRO[currentStoryPage];
+            const storyChar = document.getElementById('storyCharacter');
+            storyChar.classList.add('nova-talking');
+            document.getElementById('storyCharacterName').textContent = story.name;
+            document.getElementById('storyText').innerHTML = story.text;
+            
+            // Speak the text
+            speakText(story.text);
+            
+            // Update dots
+            const dotsContainer = document.getElementById('storyDots');
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < STORY_INTRO.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'story-dot' + (i === currentStoryPage ? ' active' : '');
+                dotsContainer.appendChild(dot);
+            }
+            
+            // Update buttons
+            document.getElementById('storyBackBtn').style.display = currentStoryPage > 0 ? 'inline-block' : 'none';
+            
+            if (currentStoryPage === STORY_INTRO.length - 1) {
+                document.getElementById('storyNextBtn').textContent = 'STARTA ÄVENTYRET! 🚀';
+            } else {
+                document.getElementById('storyNextBtn').textContent = 'NÄSTA →';
+            }
+            
+            // Remove talking animation after a moment
+            setTimeout(() => {
+                storyChar.classList.remove('nova-talking');
+            }, 500);
+        }
+
+        function nextStoryPage() {
+            playSound('click');
+            stopSpeech();
+            if (currentStoryPage < STORY_INTRO.length - 1) {
+                currentStoryPage++;
+                updateStoryPage();
+            } else {
+                // End of intro, start game
+                document.getElementById('storyScreen').classList.remove('active');
+                gameState.hasSeenIntro = true;
+                saveGame();
+                startGame();
+            }
+        }
+
+        function prevStoryPage() {
+            playSound('click');
+            stopSpeech();
+            if (currentStoryPage > 0) {
+                currentStoryPage--;
+                updateStoryPage();
+            }
+        }
+
+        function updateMissionBanner() {
+            const missionIndex = Math.min(gameState.currentDestinationIndex, MISSION_MESSAGES.length - 1);
+            document.getElementById('missionText').textContent = MISSION_MESSAGES[missionIndex];
+        }
+
+        // Initialize starfield
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starfield.appendChild(star);
+            }
+        }
+
+        // Initialize space map
+        function createSpaceMap() {
+            const spaceMap = document.getElementById('spaceMap');
+            spaceMap.innerHTML = '';
+            
+            DESTINATIONS.forEach((dest, index) => {
+                const item = document.createElement('div');
+                item.className = 'map-item';
+                item.id = 'mapItem' + index;
+                
+                if (gameState.visitedDestinations.includes(dest.id)) {
+                    item.classList.add('visited');
+                }
+                if (index === gameState.currentDestinationIndex) {
+                    item.classList.add('current');
+                }
+                
+                item.innerHTML = `
+                    <span class="map-icon">${dest.icon}</span>
+                    <span class="map-name">${dest.name}</span>
+                    ${gameState.visitedDestinations.includes(dest.id) ? '<span class="map-check">✓</span>' : ''}
+                `;
+                
+                spaceMap.appendChild(item);
+            });
+        }
+
+        // Update rocket visualization
+        function updateRocket() {
+            const parts = ['rocketEngine', 'rocketFins', 'rocketBody', 'rocketNose'];
+            const current = gameState.wordsReadForCurrentDestination;
+            const needed = DESTINATIONS[gameState.currentDestinationIndex].wordsNeeded;
+            
+            // Calculate how many parts to show (proportional to progress)
+            const partsToShow = Math.floor((current / needed) * parts.length);
+            
+            parts.forEach((partId, index) => {
+                const part = document.getElementById(partId);
+                if (index < partsToShow) {
+                    part.classList.add('visible');
+                } else {
+                    part.classList.remove('visible');
+                }
+            });
+            
+            document.getElementById('rocketProgress').textContent = current;
+            document.getElementById('rocketTotal').textContent = needed;
+        }
+
+        // Get next word
+        let currentWord = null;
+        let isCurrentWordPractice = false;
+
+        function getNextWord() {
+            const dest = DESTINATIONS[gameState.currentDestinationIndex];
+            
+            // 30% chans att visa ett övningsord om det finns några
+            if (gameState.skippedWords.length > 0 && Math.random() < 0.3) {
+                const practiceWord = gameState.skippedWords[Math.floor(Math.random() * gameState.skippedWords.length)];
+                isCurrentWordPractice = true;
+                return practiceWord;
+            }
+            
+            isCurrentWordPractice = false;
+            
+            // Reset used indices if we've used them all
+            if (gameState.usedWordIndices.length >= dest.words.length) {
+                gameState.usedWordIndices = [];
+            }
+            
+            // Find an unused word
+            let wordIndex;
+            do {
+                wordIndex = Math.floor(Math.random() * dest.words.length);
+            } while (gameState.usedWordIndices.includes(wordIndex));
+            
+            gameState.usedWordIndices.push(wordIndex);
+            gameState.currentWordIndex = wordIndex;
+            
+            return dest.words[wordIndex];
+        }
+
+        // Display word
+        function displayWord() {
+            currentWord = getNextWord();
+            wordText.textContent = currentWord.word;
+            
+            // Visa symbol direkt endast på Månen (index 0)
+            // Från Mars (index 1) och framåt döljs symbolen
+            if (gameState.currentDestinationIndex === 0) {
+                wordImage.textContent = currentWord.image;
+                wordImage.style.opacity = '1';
+                document.getElementById('hintBtn').style.display = 'none';
+            } else {
+                wordImage.textContent = '❓';
+                wordImage.style.opacity = '0.5';
+                document.getElementById('hintBtn').style.display = 'inline-block';
+            }
+            
+            // Visa en liten indikator om det är ett övningsord
+            const hint = document.getElementById('wordHint');
+            if (isCurrentWordPractice) {
+                hint.textContent = '⭐ Övningsord - försök igen!';
+                hint.style.color = 'var(--star-yellow)';
+            } else {
+                hint.textContent = 'Ljuda fram ordet!';
+                hint.style.color = 'var(--text-dim)';
+            }
+            
+            const dest = DESTINATIONS[gameState.currentDestinationIndex];
+            destinationName.textContent = dest.name;
+            destinationName.style.color = dest.color;
+        }
+
+        // Visa ledtråd (symbolen)
+        function showHint() {
+            playSound('click');
+            wordImage.textContent = currentWord.image;
+            wordImage.style.opacity = '1';
+            document.getElementById('hintBtn').style.display = 'none';
+        }
+
+        // Word completed successfully
+        function wordComplete() {
+            playSound('success');
+            
+            // Visa symbolen om den var dold
+            if (gameState.currentDestinationIndex > 0) {
+                wordImage.textContent = currentWord.image;
+                wordImage.style.opacity = '1';
+            }
+            
+            gameState.wordsReadForCurrentDestination++;
+            gameState.totalWordsRead++;
+            gameState.totalStars += 1;
+            
+            // Om det var ett övningsord, ta bort det från listan och fira extra!
+            let isPracticedWord = false;
+            if (isCurrentWordPractice && currentWord) {
+                const index = gameState.skippedWords.findIndex(w => w.word === currentWord.word);
+                if (index > -1) {
+                    gameState.skippedWords.splice(index, 1);
+                    gameState.practicedWords.push(currentWord.word);
+                    isPracticedWord = true;
+                }
+            }
+            
+            // Update stats
+            document.getElementById('totalWords').textContent = gameState.totalWordsRead;
+            document.getElementById('totalStars').textContent = gameState.totalStars;
+            
+            // Show celebration (extra för övningsord)
+            showCelebration(isPracticedWord);
+            
+            // Update rocket
+            updateRocket();
+            
+            // Check if destination complete
+            const dest = DESTINATIONS[gameState.currentDestinationIndex];
+            if (gameState.wordsReadForCurrentDestination >= dest.wordsNeeded) {
+                setTimeout(() => {
+                    completeDestination();
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    hideCelebration();
+                    displayWord();
+                }, 1200);
+            }
+            
+            saveGame();
+        }
+
+        // Skip word - sparar ordet för senare övning
+        function skipWord() {
+            playSound('click');
+            
+            // Spara ordet i övningslistan om det inte redan finns där
+            if (currentWord && !isCurrentWordPractice) {
+                const alreadySkipped = gameState.skippedWords.some(w => w.word === currentWord.word);
+                if (!alreadySkipped) {
+                    gameState.skippedWords.push({
+                        word: currentWord.word,
+                        image: currentWord.image,
+                        skippedAt: new Date().toISOString()
+                    });
+                    saveGame();
+                }
+            }
+            
+            displayWord();
+        }
+
+        // Show celebration
+        function showCelebration(isPracticedWord = false) {
+            celebration.classList.add('active');
+            
+            let messages;
+            if (isPracticedWord) {
+                // Extra uppmuntran för ord de övat på!
+                messages = [
+                    'STJÄRNBRA!',
+                    'DU KLARADE ÖVNINGSORDET!',
+                    'ÖVNING GER FÄRDIGHET!',
+                    'SÅ DUKTIGT!',
+                    'DU LÄRDE DIG DET!',
+                    'FANTASTISK ÖVNING!'
+                ];
+                document.getElementById('celebrationText').textContent = 'Du klarade ett ord du övade på!';
+            } else {
+                messages = [
+                    'FANTASTISKT!',
+                    'SUPERBRA!',
+                    'HURRA!',
+                    'UNDERBART!',
+                    'STRÅLANDE!',
+                    'TOPPEN!',
+                    'WOW!',
+                    'PERFEKT!'
+                ];
+                document.getElementById('celebrationText').textContent = 'Du läste ordet rätt!';
+            }
+            
+            document.querySelector('.celebration-text').textContent = 
+                messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        // Hide celebration
+        function hideCelebration() {
+            celebration.classList.remove('active');
+        }
+
+        // Complete destination
+        function completeDestination() {
+            playSound('complete');
+            hideCelebration();
+            
+            const dest = DESTINATIONS[gameState.currentDestinationIndex];
+            
+            // Add to visited
+            if (!gameState.visitedDestinations.includes(dest.id)) {
+                gameState.visitedDestinations.push(dest.id);
+            }
+            
+            // Update stats
+            document.getElementById('totalPlanets').textContent = gameState.visitedDestinations.length;
+            
+            // Show flying animation
+            showFlyingAnimation();
+            
+            setTimeout(() => {
+                hideFlyingAnimation();
+                showPlanetArrival(dest);
+            }, 2500);
+            
+            saveGame();
+        }
+
+        // Show flying animation
+        function showFlyingAnimation() {
+            flyingScreen.classList.add('active');
+            document.getElementById('rocketFlame').classList.add('active');
+            
+            // Create flying stars
+            const flyingStars = document.getElementById('flyingStars');
+            flyingStars.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'flying-star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 0.5 + 's';
+                flyingStars.appendChild(star);
+            }
+        }
+
+        // Hide flying animation
+        function hideFlyingAnimation() {
+            flyingScreen.classList.remove('active');
+            document.getElementById('rocketFlame').classList.remove('active');
+        }
+
+        // Show planet arrival
+        function showPlanetArrival(dest) {
+            const arrivalIndex = gameState.visitedDestinations.length - 1;
+            const novaMessage = ARRIVAL_MESSAGES[Math.min(arrivalIndex, ARRIVAL_MESSAGES.length - 1)];
+            
+            // Slumpa en fakta från listan
+            const randomFact = dest.facts[Math.floor(Math.random() * dest.facts.length)];
+            
+            document.getElementById('planetIcon').textContent = dest.icon;
+            document.getElementById('planetTitle').textContent = dest.name;
+            document.getElementById('planetTitle').style.color = dest.color;
+            
+            // Update planet screen with Nova's celebration message
+            document.querySelector('.planet-fact').innerHTML = `
+                <span class="planet-fact-label">⭐ NOVA SÄGER:</span>
+                <span style="display: block; margin-bottom: 20px; color: var(--star-yellow);">${novaMessage}</span>
+                <span class="planet-fact-label" style="margin-top: 15px;">VISSTE DU ATT...</span>
+                <span id="planetFact">${randomFact}</span>
+            `;
+            
+            planetScreen.classList.add('active');
+            
+            // Speak Nova's message and then the fact
+            speakText(novaMessage + ". Visste du att: " + randomFact);
+        }
+
+        // Continue playing after planet arrival
+        function continuePlaying() {
+            stopSpeech();
+            planetScreen.classList.remove('active');
+            
+            // Move to next destination
+            if (gameState.currentDestinationIndex < DESTINATIONS.length - 1) {
+                gameState.currentDestinationIndex++;
+                gameState.wordsReadForCurrentDestination = 0;
+                gameState.usedWordIndices = [];
+                
+                // Reset rocket
+                ['rocketNose', 'rocketBody', 'rocketFins', 'rocketEngine'].forEach(id => {
+                    document.getElementById(id).classList.remove('visible');
+                });
+                
+                // Update map
+                createSpaceMap();
+                
+                // Update mission banner
+                updateMissionBanner();
+                
+                // Display new word
+                displayWord();
+                updateRocket();
+            } else {
+                // Game complete! (Phase 1 complete)
+                showGameComplete();
+            }
+            
+            saveGame();
+        }
+
+        // Show game complete
+        function showGameComplete() {
+            planetScreen.innerHTML = `
+                <div class="planet-icon">⭐</div>
+                <div class="planet-title" style="color: var(--star-yellow);">GRATTIS LIAM!</div>
+                <div class="planet-fact">
+                    <span class="planet-fact-label">⭐ NOVA SÄGER:</span>
+                    <span style="display: block; margin-bottom: 20px; color: var(--star-yellow);">DU GJORDE DET! DU HAR RÄDDAT ALLA STJÄRNLJUS I HELA SOLSYSTEMET!</span>
+                    <span style="display: block; margin-bottom: 20px;">TACK VARE DIN ORDKRAFT LYSER ALLA PLANETER IGEN. DU ÄR EN SANN RYMDHJÄLTE!</span>
+                    <span class="planet-fact-label" style="margin-top: 15px;">SNART...</span>
+                    <span>JAG HAR HÖRT RYKTEN OM ATT STJÄRNLJUS UTANFÖR VÅRT SOLSYSTEM OCKSÅ BEHÖVER HJÄLP... MEN DET ÄR ETT ÄVENTYR FÖR EN ANNAN DAG!</span>
+                </div>
+                <button class="btn btn-primary btn-continue" onclick="resetForReplay()">SPELA IGEN 🚀</button>
+            `;
+            planetScreen.classList.add('active');
+        }
+
+        // Reset for replay
+        function resetForReplay() {
+            gameState.currentDestinationIndex = 0;
+            gameState.wordsReadForCurrentDestination = 0;
+            gameState.usedWordIndices = [];
+            
+            // Restore planet screen HTML
+            planetScreen.innerHTML = `
+                <div class="planet-icon" id="planetIcon">🌙</div>
+                <div class="planet-title" id="planetTitle">MÅNEN</div>
+                <div class="planet-fact">
+                    <span class="planet-fact-label">VISSTE DU ATT...</span>
+                    <span id="planetFact">Månen är den enda platsen utanför jorden som människor har besökt!</span>
+                </div>
+                <button class="btn btn-primary btn-continue" onclick="continuePlaying()">FORTSÄTT ÄVENTYRET →</button>
+            `;
+            
+            planetScreen.classList.remove('active');
+            createSpaceMap();
+            displayWord();
+            updateRocket();
+            updateMissionBanner();
+            saveGame();
+        }
+
+        // Start game
+        function startGame() {
+            if (!audioContext) {
+                initAudio();
+            }
+            playSound('click');
+            
+            // Fade out the intro music
+            fadeOutMusic(1500);
+            
+            // Start focus music after a short delay
+            setTimeout(() => {
+                startFocusMusic();
+            }, 1600);
+            
+            startScreen.classList.add('hidden');
+            gameContainer.style.display = 'flex';
+            
+            // Show music button
+            document.getElementById('musicBtn').style.display = 'block';
+            
+            displayWord();
+            updateRocket();
+            createSpaceMap();
+            updateMissionBanner();
+            updateMusicButton();
+            
+            document.getElementById('totalWords').textContent = gameState.totalWordsRead;
+            document.getElementById('totalPlanets').textContent = gameState.visitedDestinations.length;
+            document.getElementById('totalStars').textContent = gameState.totalStars;
+        }
+
+        // Parent mode functions
+        function openParentModal() {
+            document.getElementById('parentModal').classList.add('active');
+            document.getElementById('pin1').focus();
+            clearPinInputs();
+        }
+
+        function closeParentModal() {
+            document.getElementById('parentModal').classList.remove('active');
+            document.getElementById('parentDashboard').classList.remove('active');
+            document.getElementById('pinContainer').style.display = 'block';
+            clearPinInputs();
+        }
+
+        function clearPinInputs() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('pin' + i).value = '';
+            }
+            document.getElementById('pinError').classList.remove('visible');
+        }
+
+        function pinInput(digit) {
+            const currentInput = document.getElementById('pin' + digit);
+            
+            if (currentInput.value.length === 1 && digit < 4) {
+                document.getElementById('pin' + (digit + 1)).focus();
+            }
+            
+            // Check if all digits entered
+            if (digit === 4 && currentInput.value.length === 1) {
+                const pin = document.getElementById('pin1').value +
+                           document.getElementById('pin2').value +
+                           document.getElementById('pin3').value +
+                           document.getElementById('pin4').value;
+                
+                if (pin === '8889') {
+                    showParentDashboard();
+                } else {
+                    document.getElementById('pinError').classList.add('visible');
+                    clearPinInputs();
+                    document.getElementById('pin1').focus();
+                }
+            }
+        }
+
+        function showParentDashboard() {
+            document.getElementById('pinContainer').style.display = 'none';
+            document.getElementById('parentDashboard').classList.add('active');
+            
+            // Update dashboard stats
+            document.getElementById('dashTotalWords').textContent = gameState.totalWordsRead;
+            document.getElementById('dashPlanetsVisited').textContent = gameState.visitedDestinations.length;
+            document.getElementById('dashCurrentLevel').textContent = gameState.currentDestinationIndex + 1;
+            
+            // Populate planet select
+            const select = document.getElementById('planetSelect');
+            select.innerHTML = '';
+            DESTINATIONS.forEach((dest, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${dest.icon} ${dest.name}`;
+                select.appendChild(option);
+            });
+            select.value = gameState.currentDestinationIndex;
+            
+            // Visa övningsord (hoppade över)
+            const skippedList = document.getElementById('skippedWordsList');
+            if (gameState.skippedWords && gameState.skippedWords.length > 0) {
+                skippedList.innerHTML = gameState.skippedWords
+                    .map(w => `<span style="margin-right: 15px;">${w.image} ${w.word}</span>`)
+                    .join('');
+            } else {
+                skippedList.textContent = 'Inga övningsord just nu! 🌟';
+            }
+            
+            // Visa klarade övningsord
+            const practicedList = document.getElementById('practicedWordsList');
+            if (gameState.practicedWords && gameState.practicedWords.length > 0) {
+                practicedList.innerHTML = gameState.practicedWords
+                    .map(w => `<span style="margin-right: 15px;">✓ ${w}</span>`)
+                    .join('');
+            } else {
+                practicedList.textContent = 'Inga än';
+            }
+        }
+
+        function jumpToPlanet() {
+            const select = document.getElementById('planetSelect');
+            const newIndex = parseInt(select.value);
+            
+            gameState.currentDestinationIndex = newIndex;
+            gameState.wordsReadForCurrentDestination = 0;
+            gameState.usedWordIndices = [];
+            
+            // Reset rocket
+            ['rocketNose', 'rocketBody', 'rocketFins', 'rocketEngine'].forEach(id => {
+                document.getElementById(id).classList.remove('visible');
+            });
+            
+            createSpaceMap();
+            displayWord();
+            updateRocket();
+            updateMissionBanner();
+            saveGame();
+            closeParentModal();
+        }
+
+        function resetProgress() {
+            // Skapa en bekräftelsedialog
+            const confirmDiv = document.createElement('div');
+            confirmDiv.id = 'confirmReset';
+            confirmDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: var(--space-mid);
+                padding: 40px;
+                border-radius: 20px;
+                text-align: center;
+                z-index: 400;
+                border: 2px solid var(--rocket-red);
+            `;
+            confirmDiv.innerHTML = `
+                <p style="font-size: 1.2rem; margin-bottom: 30px;">Är du säker på att du vill återställa all progress?<br>Detta kan inte ångras.</p>
+                <button class="btn" style="background: var(--rocket-red); color: white; margin-right: 15px;" onclick="confirmReset()">Ja, återställ</button>
+                <button class="btn btn-secondary" onclick="cancelReset()">Avbryt</button>
+            `;
+            document.body.appendChild(confirmDiv);
+        }
+
+        function confirmReset() {
+            document.getElementById('confirmReset').remove();
+            
+            gameState = {
+                currentDestinationIndex: 0,
+                wordsReadForCurrentDestination: 0,
+                totalWordsRead: 0,
+                totalStars: 0,
+                visitedDestinations: [],
+                currentWordIndex: 0,
+                usedWordIndices: [],
+                audioEnabled: true,
+                musicEnabled: true,
+                hasSeenIntro: false,
+                skippedWords: [],
+                practicedWords: []
+            };
+            
+            localStorage.removeItem('liamsRymdaventyr');
+            
+            createSpaceMap();
+            displayWord();
+            updateRocket();
+            updateMissionBanner();
+            
+            document.getElementById('totalWords').textContent = 0;
+            document.getElementById('totalPlanets').textContent = 0;
+            document.getElementById('totalStars').textContent = 0;
+            
+            closeParentModal();
+        }
+
+        function cancelReset() {
+            document.getElementById('confirmReset').remove();
+        }
+
+        // Save/Load game
+        function saveGame() {
+            localStorage.setItem('liamsRymdaventyr', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('liamsRymdaventyr');
+            if (saved) {
+                gameState = { ...gameState, ...JSON.parse(saved) };
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createStarfield();
+            loadGame();
+            initMusic();
+            
+            // Update audio button
+            document.getElementById('audioBtn').textContent = gameState.audioEnabled ? '🔊' : '🔇';
+            
+            // Handle keyboard input for PIN
+            document.querySelectorAll('.pin-digit').forEach((input, index) => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                        document.getElementById('pin' + index).focus();
+                    }
+                });
+            });
+            
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registrerad!'))
+                    .catch(err => console.log('Service Worker kunde inte registreras:', err));
+            }
+        });
+    </script>
+</body>
+</html>

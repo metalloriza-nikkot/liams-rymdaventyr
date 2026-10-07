@@ -1,11 +1,10 @@
-const CACHE_NAME = 'liams-rymdaventyr-v1';
+const CACHE_NAME = 'liams-rymdaventyr-v2';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './Nova_bild.png',
   './SPELMUSIK_Liams_space_adventure.mp3',
   './SPELMUSIK_Liams_rymdäventyr_lugn_fokus.mp3',
   'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap'
@@ -39,8 +38,23 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Hämta från cache först, sedan nätverk
 self.addEventListener('fetch', event => {
+  // Själva spelet (HTML) hämtas från nätverket först, så att nya versioner syns direkt.
+  // Utan nätverk används den sparade kopian.
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Övriga filer (musik, ikoner): från cache först, sedan nätverk
   event.respondWith(
     caches.match(event.request)
       .then(response => {

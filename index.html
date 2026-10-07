@@ -1313,6 +1313,218 @@
         * {
             touch-action: manipulation;
         }
+
+        /* ── NAMNSINMATNING ─────────────────────────────── */
+        .name-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--space-dark);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 40px;
+        }
+        .name-screen.active { display: flex; }
+        .name-screen .name-rocket { font-size: 5rem; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
+        .name-screen h2 { font-size: 1.8rem; color: var(--star-yellow); margin-bottom: 10px; }
+        .name-screen p { color: var(--text-dim); margin-bottom: 30px; }
+        .name-input-field {
+            background: var(--space-mid);
+            border: 2px solid var(--space-purple);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            padding: 14px 24px;
+            text-align: center;
+            width: 280px;
+            max-width: 100%;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            outline: none;
+            margin-bottom: 30px;
+            transition: border-color 0.2s;
+        }
+        .name-input-field:focus { border-color: var(--star-yellow); }
+
+        /* ── STREAK ─────────────────────────────────────── */
+        .streak-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 107, 53, 0.15);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--rocket-orange);
+            transition: all 0.3s;
+        }
+        .streak-display.streak-active {
+            background: rgba(255, 107, 53, 0.3);
+            border-color: var(--rocket-orange);
+            box-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+        }
+        .streak-bonus {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--rocket-orange);
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.8);
+            z-index: 300;
+            pointer-events: none;
+            white-space: nowrap;
+            animation: streakPop 1.2s ease-out forwards;
+        }
+        @keyframes streakPop {
+            0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            40%  { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+            80%  { transform: translate(-50%, -70%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -90%) scale(0.9); opacity: 0; }
+        }
+
+        /* ── ANIMERADE STJÄRNOR ─────────────────────────── */
+        .flying-score-star {
+            position: fixed;
+            font-size: 1.8rem;
+            z-index: 500;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: left 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        top 0.65s cubic-bezier(0.55, 0, 0.75, 0.4),
+                        transform 0.65s ease-in;
+        }
+        .stat-value.bump {
+            display: inline-block;
+            animation: statBump 0.3s ease-out;
+        }
+        @keyframes statBump {
+            50% { transform: scale(1.6); }
+        }
+
+        /* ── BILDMATCHNING ──────────────────────────────── */
+        .picture-choices {
+            display: none;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .picture-choices.active { display: flex; }
+        .picture-btn {
+            background: var(--space-mid);
+            border: 3px solid var(--space-purple);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 3.5rem;
+            padding: 18px 24px;
+            line-height: 1;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .picture-btn:hover  { border-color: var(--star-yellow); transform: scale(1.08); }
+        .picture-btn:active { transform: scale(0.96); }
+        .picture-btn.wrong  { animation: wrongShake 0.4s ease-out; border-color: var(--rocket-red); }
+        .picture-btn.correct { border-color: var(--success-green); box-shadow: 0 0 25px rgba(74, 222, 128, 0.6); }
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+        .picture-skip {
+            display: none;
+            margin-top: 15px;
+        }
+
+        /* ── BOKSTAVSANIMATION ──────────────────────────── */
+        .word-char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: charIn 0.25s ease-out forwards;
+        }
+        @keyframes charIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .typewriter-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            z-index: 50;
+            transition: all 0.3s;
+        }
+        .typewriter-toggle.on { color: var(--star-yellow); border-color: rgba(255, 217, 61, 0.5); }
+
+        /* Ge plats åt de fasta ljud-/musikknapparna uppe till höger och knapparna nere i hörnen */
+        .header { padding-right: 170px; }
+        .game-container { padding-bottom: 70px; }
+        @media (max-width: 1024px) {
+            .header { padding-right: 20px; padding-top: 75px; }
+        }
+        @media (max-width: 768px) {
+            .typewriter-label { display: none; }
+        }
+
+        /* ── DIPLOM ─────────────────────────────────────── */
+        .diploma-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--space-dark);
+            z-index: 350;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .diploma-screen.active { display: flex; }
+        .diploma {
+            background: linear-gradient(135deg, var(--space-mid), #2a2060);
+            border: 4px solid var(--star-yellow);
+            border-radius: 24px;
+            box-shadow: 0 0 60px rgba(255, 217, 61, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        .diploma-stars { font-size: 2.5rem; letter-spacing: 8px; margin-bottom: 20px; }
+        .diploma-title { font-size: 1rem; color: var(--text-dim); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
+        .diploma-name { font-size: 3rem; font-weight: 700; color: var(--star-yellow); text-shadow: 0 0 20px rgba(255, 217, 61, 0.5); margin-bottom: 8px; word-break: break-word; }
+        .diploma-subtitle { font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6; }
+        .diploma-stats { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+        .diploma-stat { background: rgba(255, 255, 255, 0.07); border-radius: 12px; padding: 14px 20px; min-width: 120px; }
+        .diploma-stat-value { font-size: 2rem; font-weight: 700; color: var(--star-yellow); }
+        .diploma-stat-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+        .diploma-seal { font-size: 4rem; margin-bottom: 10px; }
+        .diploma-date { font-size: 0.95rem; color: var(--text-dim); margin-bottom: 30px; }
+        .diploma-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        @media print {
+            body > *:not(.diploma-screen) { display: none !important; }
+            body { background: white !important; }
+            .diploma-screen { display: flex !important; position: static !important; background: white !important; }
+            .diploma { background: white !important; border-color: #b8860b !important; box-shadow: none !important; color: #222 !important; }
+            .diploma-name, .diploma-stat-value { color: #b8860b !important; text-shadow: none !important; }
+            .diploma-title, .diploma-date, .diploma-stat-label { color: #555 !important; }
+            .diploma-stat { background: #f6f6f6 !important; }
+            .diploma-buttons { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -1329,9 +1541,19 @@
         <source src="SPELMUSIK_Liams_rymdäventyr_lugn_fokus.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Name Input Screen -->
+    <div class="name-screen" id="nameScreen">
+        <div class="name-rocket">🚀</div>
+        <h2>VEM ÄR RYMDHJÄLTEN?</h2>
+        <p>Skriv ditt namn för att börja äventyret!</p>
+        <input type="text" id="nameInput" class="name-input-field" placeholder="DITT NAMN"
+               maxlength="14" autocomplete="off" onkeydown="if (event.key === 'Enter') confirmName()">
+        <button class="btn btn-primary" onclick="confirmName()">STARTA 🚀</button>
+    </div>
+
     <!-- Start Screen -->
     <div class="start-screen" id="startScreen">
-        <div class="start-title">LIAMS RYMDÄVENTYR</div>
+        <div class="start-title" id="startTitle">LIAMS RYMDÄVENTYR</div>
         <div class="start-subtitle">En läsresa genom solsystemet</div>
         <div class="start-rocket">🚀</div>
         <button class="btn btn-start" id="startBtn" onclick="handleStartClick()">STARTA ÄVENTYRET</button>
@@ -1357,7 +1579,7 @@
     <!-- Main Game Container -->
     <div class="game-container" id="gameContainer" style="display: none;">
         <header class="header">
-            <div class="logo">LIAMS <span>RYMDÄVENTYR</span></div>
+            <div class="logo" id="headerLogo">LIAMS <span>RYMDÄVENTYR</span></div>
             <div class="stats-bar">
                 <div class="stat">
                     <span class="stat-icon">📖</span>
@@ -1373,6 +1595,9 @@
                     <span class="stat-icon">⭐</span>
                     <span>Stjärnljus: </span>
                     <span class="stat-value" id="totalStars">0</span>
+                </div>
+                <div class="stat" id="streakStat" style="display: none;">
+                    <span class="streak-display" id="streakDisplay">🔥 0 i rad</span>
                 </div>
             </div>
         </header>
@@ -1417,8 +1642,14 @@
                     <div class="word-hint" id="wordHint">Ljuda fram ordet!</div>
                 </div>
 
-                <div class="action-buttons">
+                <!-- Läsläge -->
+                <div class="action-buttons" id="readButtons">
                     <button class="btn btn-primary" onclick="wordComplete()">JAG KAN LÄSA DET! ✓</button>
+                    <button class="btn btn-secondary" onclick="skipWord()">NYTT ORD →</button>
+                </div>
+                <!-- Bildläge -->
+                <div class="picture-choices" id="pictureChoices"></div>
+                <div class="picture-skip" id="pictureSkip">
                     <button class="btn btn-secondary" onclick="skipWord()">NYTT ORD →</button>
                 </div>
                 <div style="margin-top: 15px;">
@@ -1531,6 +1762,39 @@
     
     <!-- Music Button (only visible during gameplay) -->
     <button class="audio-btn" id="musicBtn" onclick="toggleFocusMusic()" style="display: none; right: 80px;" title="Stäng av musik">🎵</button>
+
+    <!-- Bokstavsanimation på/av (visas under spelet) -->
+    <button class="typewriter-toggle on" id="typewriterBtn" onclick="toggleTypewriter()" style="display: none;">✨ <span class="typewriter-label">Bokstavsanimation: </span><span id="typewriterState">PÅ</span></button>
+
+    <!-- Diploma Screen -->
+    <div class="diploma-screen" id="diplomaScreen">
+        <div class="diploma">
+            <div class="diploma-stars">⭐ ⭐ ⭐</div>
+            <div class="diploma-title">Härmed intygas att</div>
+            <div class="diploma-name" id="diplomaName">LIAM</div>
+            <div class="diploma-subtitle">har räddat alla stjärnljus i solsystemet<br>och är en sann <strong>RYMDHJÄLTE</strong>!</div>
+            <div class="diploma-stats">
+                <div class="diploma-stat">
+                    <div class="diploma-stat-value" id="diplomaWords">0</div>
+                    <div class="diploma-stat-label">Ord lästa</div>
+                </div>
+                <div class="diploma-stat">
+                    <div class="diploma-stat-value" id="diplomaPlanets">8</div>
+                    <div class="diploma-stat-label">Platser besökta</div>
+                </div>
+                <div class="diploma-stat">
+                    <div class="diploma-stat-value" id="diplomaStars">0</div>
+                    <div class="diploma-stat-label">Stjärnljus</div>
+                </div>
+            </div>
+            <div class="diploma-seal">🏅</div>
+            <div class="diploma-date" id="diplomaDate"></div>
+            <div class="diploma-buttons">
+                <button class="btn btn-primary" onclick="window.print()">🖨️ SKRIV UT</button>
+                <button class="btn btn-secondary" onclick="closeDiplomaAndReplay()">SPELA IGEN 🚀</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Game Data
@@ -1817,7 +2081,7 @@
             {
                 character: '⭐',
                 name: 'NOVA',
-                text: 'HEJ LIAM! JAG HETER <span class="highlight">NOVA</span> OCH JAG ÄR EN STJÄRNVÄKTARE SOM BOR PÅ MÅNEN.'
+                text: 'HEJ {NAMN}! JAG HETER <span class="highlight">NOVA</span> OCH JAG ÄR EN STJÄRNVÄKTARE SOM BOR PÅ MÅNEN.'
             },
             {
                 character: '⭐',
@@ -1857,7 +2121,7 @@
             {
                 character: '🌟',
                 name: 'NOVA',
-                text: 'ÄR DU REDO ATT RÄDDA STJÄRNLJUSEN, LIAM? VÅRT ÄVENTYR BÖRJAR PÅ <span class="highlight">MÅNEN</span>!'
+                text: 'ÄR DU REDO ATT RÄDDA STJÄRNLJUSEN, {NAMN}? VÅRT ÄVENTYR BÖRJAR PÅ <span class="highlight">MÅNEN</span>!'
             }
         ];
 
@@ -1898,7 +2162,13 @@
             musicEnabled: true,
             hasSeenIntro: false,
             skippedWords: [],        // Ord som hoppats över { word, image, attempts }
-            practicedWords: []       // Ord som klarats efter övning
+            practicedWords: [],      // Ord som klarats efter övning
+            playerName: '',          // Spelarens namn
+            currentStreak: 0,        // Ord i rad utan att hoppa över
+            typewriterEffect: true,  // Bokstavsanimation på/av
+            wordMode: 'read',        // 'read' eller 'picture'
+            wordModeCount: 0,        // Antal ord i nuvarande läge
+            wordModeTarget: 2        // 2 eller 3 ord innan läget byts
         };
 
         // Story state
@@ -2010,8 +2280,13 @@
         function handleStartClick() {
             // Start music on first interaction
             startMusic();
-            // Then show story intro
-            showStoryIntro();
+            // Fråga efter namn första gången, annars direkt till storyn
+            if (!gameState.playerName) {
+                startScreen.classList.add('hidden');
+                showNameScreen();
+            } else {
+                showStoryIntro();
+            }
         }
 
         // Audio Context
@@ -2154,10 +2429,11 @@
             const storyChar = document.getElementById('storyCharacter');
             storyChar.classList.add('nova-talking');
             document.getElementById('storyCharacterName').textContent = story.name;
-            document.getElementById('storyText').innerHTML = story.text;
+            const storyText = story.text.replace(/\{NAMN\}/g, getPlayerName());
+            document.getElementById('storyText').innerHTML = storyText;
             
             // Speak the text
-            speakText(story.text);
+            speakText(storyText);
             
             // Update dots
             const dotsContainer = document.getElementById('storyDots');
@@ -2279,6 +2555,7 @@
         // Get next word
         let currentWord = null;
         let isCurrentWordPractice = false;
+        let wordLocked = false; // Spärr så att ett ord inte räknas två gånger
 
         function getNextWord() {
             const dest = DESTINATIONS[gameState.currentDestinationIndex];
@@ -2312,15 +2589,33 @@
         // Display word
         function displayWord() {
             currentWord = getNextWord();
-            wordText.textContent = currentWord.word;
+            wordLocked = false;
             
-            // Visa symbol direkt endast på Månen (index 0)
-            // Från Mars (index 1) och framåt döljs symbolen
-            if (gameState.currentDestinationIndex === 0) {
+            if (gameState.typewriterEffect) {
+                displayWordWithTypewriter(currentWord.word);
+            } else {
+                wordText.textContent = currentWord.word;
+            }
+            
+            // Välj läge: läsa själv eller matcha bild
+            pickWordMode();
+            const pictureMode = gameState.wordMode === 'picture';
+            document.getElementById('readButtons').style.display = pictureMode ? 'none' : '';
+            document.getElementById('pictureSkip').style.display = pictureMode ? 'block' : 'none';
+            
+            if (pictureMode) {
+                // I bildläget får symbolen inte avslöja svaret
+                wordImage.textContent = '❓';
+                wordImage.style.opacity = '0.5';
+                document.getElementById('hintBtn').style.display = 'none';
+                showPictureChoices();
+            } else if (gameState.currentDestinationIndex === 0) {
+                hidePictureChoices();
                 wordImage.textContent = currentWord.image;
                 wordImage.style.opacity = '1';
                 document.getElementById('hintBtn').style.display = 'none';
             } else {
+                hidePictureChoices();
                 wordImage.textContent = '❓';
                 wordImage.style.opacity = '0.5';
                 document.getElementById('hintBtn').style.display = 'inline-block';
@@ -2331,6 +2626,9 @@
             if (isCurrentWordPractice) {
                 hint.textContent = '⭐ Övningsord - försök igen!';
                 hint.style.color = 'var(--star-yellow)';
+            } else if (pictureMode) {
+                hint.textContent = 'Läs ordet och tryck på rätt bild!';
+                hint.style.color = 'var(--text-dim)';
             } else {
                 hint.textContent = 'Ljuda fram ordet!';
                 hint.style.color = 'var(--text-dim)';
@@ -2351,10 +2649,14 @@
 
         // Word completed successfully
         function wordComplete() {
+            // Skydd mot dubbelklick medan firandet visas
+            if (wordLocked) return;
+            wordLocked = true;
+            
             playSound('success');
             
             // Visa symbolen om den var dold
-            if (gameState.currentDestinationIndex > 0) {
+            if (wordImage.textContent !== currentWord.image) {
                 wordImage.textContent = currentWord.image;
                 wordImage.style.opacity = '1';
             }
@@ -2362,6 +2664,11 @@
             gameState.wordsReadForCurrentDestination++;
             gameState.totalWordsRead++;
             gameState.totalStars += 1;
+            
+            // Streak
+            gameState.currentStreak++;
+            updateStreakDisplay();
+            showStreakBonus(gameState.currentStreak);
             
             // Om det var ett övningsord, ta bort det från listan och fira extra!
             let isPracticedWord = false;
@@ -2376,7 +2683,8 @@
             
             // Update stats
             document.getElementById('totalWords').textContent = gameState.totalWordsRead;
-            document.getElementById('totalStars').textContent = gameState.totalStars;
+            // Stjärnräknaren uppdateras när den flygande stjärnan landar
+            animateStarToCounter();
             
             // Show celebration (extra för övningsord)
             showCelebration(isPracticedWord);
@@ -2402,7 +2710,12 @@
 
         // Skip word - sparar ordet för senare övning
         function skipWord() {
+            if (wordLocked) return;
             playSound('click');
+            
+            // Hoppa över bryter streaken
+            gameState.currentStreak = 0;
+            updateStreakDisplay();
             
             // Spara ordet i övningslistan om det inte redan finns där
             if (currentWord && !isCurrentWordPractice) {
@@ -2571,7 +2884,7 @@
         function showGameComplete() {
             planetScreen.innerHTML = `
                 <div class="planet-icon">⭐</div>
-                <div class="planet-title" style="color: var(--star-yellow);">GRATTIS LIAM!</div>
+                <div class="planet-title" style="color: var(--star-yellow);">GRATTIS ${escapeHtml(getPlayerName())}!</div>
                 <div class="planet-fact">
                     <span class="planet-fact-label">⭐ NOVA SÄGER:</span>
                     <span style="display: block; margin-bottom: 20px; color: var(--star-yellow);">DU GJORDE DET! DU HAR RÄDDAT ALLA STJÄRNLJUS I HELA SOLSYSTEMET!</span>
@@ -2579,7 +2892,7 @@
                     <span class="planet-fact-label" style="margin-top: 15px;">SNART...</span>
                     <span>JAG HAR HÖRT RYKTEN OM ATT STJÄRNLJUS UTANFÖR VÅRT SOLSYSTEM OCKSÅ BEHÖVER HJÄLP... MEN DET ÄR ETT ÄVENTYR FÖR EN ANNAN DAG!</span>
                 </div>
-                <button class="btn btn-primary btn-continue" onclick="resetForReplay()">SPELA IGEN 🚀</button>
+                <button class="btn btn-primary btn-continue" onclick="showDiploma()">🏅 SE DITT DIPLOM</button>
             `;
             planetScreen.classList.add('active');
         }
@@ -2589,6 +2902,8 @@
             gameState.currentDestinationIndex = 0;
             gameState.wordsReadForCurrentDestination = 0;
             gameState.usedWordIndices = [];
+            gameState.currentStreak = 0;
+            updateStreakDisplay();
             
             // Restore planet screen HTML
             planetScreen.innerHTML = `
@@ -2629,6 +2944,10 @@
             
             // Show music button
             document.getElementById('musicBtn').style.display = 'block';
+            document.getElementById('typewriterBtn').style.display = 'block';
+            updateTypewriterButton();
+            applyPlayerName();
+            updateStreakDisplay();
             
             displayWord();
             updateRocket();
@@ -2787,8 +3106,15 @@
                 musicEnabled: true,
                 hasSeenIntro: false,
                 skippedWords: [],
-                practicedWords: []
+                practicedWords: [],
+                playerName: gameState.playerName,
+                currentStreak: 0,
+                typewriterEffect: gameState.typewriterEffect,
+                wordMode: 'read',
+                wordModeCount: 0,
+                wordModeTarget: 2
             };
+            updateStreakDisplay();
             
             localStorage.removeItem('liamsRymdaventyr');
             
@@ -2808,6 +3134,209 @@
             document.getElementById('confirmReset').remove();
         }
 
+        // ── Spelarens namn ──────────────────────────────────────────
+        function getPlayerName() {
+            return gameState.playerName || 'LIAM';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showNameScreen() {
+            document.getElementById('nameScreen').classList.add('active');
+            setTimeout(() => document.getElementById('nameInput').focus(), 100);
+        }
+
+        function confirmName() {
+            const input = document.getElementById('nameInput');
+            const name = input.value.trim().toUpperCase();
+            if (!name) {
+                input.focus();
+                return;
+            }
+            gameState.playerName = name;
+            saveGame();
+            document.getElementById('nameScreen').classList.remove('active');
+            applyPlayerName();
+            showStoryIntro();
+        }
+
+        function applyPlayerName() {
+            // Svensk genitiv: inget extra s om namnet redan slutar på s, x eller z
+            const name = getPlayerName();
+            const genitive = /[SXZ]$/.test(name) ? name : name + 'S';
+            document.getElementById('startTitle').textContent = genitive + ' RYMDÄVENTYR';
+            document.getElementById('headerLogo').innerHTML = escapeHtml(genitive) + ' <span>RYMDÄVENTYR</span>';
+            document.title = genitive.charAt(0) + genitive.slice(1).toLowerCase() + ' Rymdäventyr';
+        }
+
+        // ── Streak ──────────────────────────────────────────────────
+        function updateStreakDisplay() {
+            const streak = gameState.currentStreak;
+            const stat = document.getElementById('streakStat');
+            const display = document.getElementById('streakDisplay');
+            if (streak >= 2) {
+                stat.style.display = 'flex';
+                display.textContent = '🔥 ' + streak + ' i rad';
+                display.classList.toggle('streak-active', streak >= 3);
+            } else {
+                stat.style.display = 'none';
+            }
+        }
+
+        function showStreakBonus(streak) {
+            let message = '';
+            if (streak === 3) message = '🔥 3 I RAD!';
+            else if (streak === 5) message = '🔥🔥 5 I RAD!';
+            else if (streak >= 10 && streak % 5 === 0) message = '⚡ ' + streak + ' I RAD! ⚡';
+            if (!message) return;
+            
+            const bonus = document.createElement('div');
+            bonus.className = 'streak-bonus';
+            bonus.textContent = message;
+            document.body.appendChild(bonus);
+            setTimeout(() => bonus.remove(), 1300);
+        }
+
+        // ── Stjärna som flyger till räknaren ────────────────────────
+        function animateStarToCounter() {
+            const counter = document.getElementById('totalStars');
+            const from = document.querySelector('.word-card').getBoundingClientRect();
+            const to = counter.getBoundingClientRect();
+            
+            const star = document.createElement('div');
+            star.className = 'flying-score-star';
+            star.textContent = '⭐';
+            star.style.left = (from.left + from.width / 2) + 'px';
+            star.style.top = (from.top + from.height / 2) + 'px';
+            document.body.appendChild(star);
+            
+            // Två frames så att startpositionen hinner ritas innan transition startar
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                star.style.left = (to.left + to.width / 2) + 'px';
+                star.style.top = (to.top + to.height / 2) + 'px';
+                star.style.transform = 'translate(-50%, -50%) scale(0.6) rotate(360deg)';
+            }));
+            
+            setTimeout(() => {
+                star.remove();
+                counter.textContent = gameState.totalStars;
+                counter.classList.remove('bump');
+                void counter.offsetWidth; // starta om animationen
+                counter.classList.add('bump');
+            }, 700);
+        }
+
+        // ── Bildmatchning ───────────────────────────────────────────
+        function pickWordMode() {
+            // Växla mellan läsläge och bildläge efter 2–3 ord
+            if (gameState.wordModeCount >= gameState.wordModeTarget) {
+                gameState.wordMode = gameState.wordMode === 'read' ? 'picture' : 'read';
+                gameState.wordModeCount = 0;
+                gameState.wordModeTarget = 2 + Math.floor(Math.random() * 2);
+            }
+            gameState.wordModeCount++;
+        }
+
+        function shuffle(array) {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        }
+
+        function showPictureChoices() {
+            const dest = DESTINATIONS[gameState.currentDestinationIndex];
+            
+            // Två felaktiga alternativ med andra bilder än rätt svar (t.ex. HUS och TAK har samma bild)
+            const usedImages = new Set([currentWord.image]);
+            const wrong = [];
+            for (const option of shuffle(dest.words)) {
+                if (!usedImages.has(option.image)) {
+                    usedImages.add(option.image);
+                    wrong.push(option);
+                }
+                if (wrong.length === 2) break;
+            }
+            
+            const container = document.getElementById('pictureChoices');
+            container.innerHTML = '';
+            shuffle([currentWord, ...wrong]).forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'picture-btn';
+                btn.textContent = option.image;
+                btn.onclick = () => handlePictureChoice(option, btn);
+                container.appendChild(btn);
+            });
+            container.classList.add('active');
+        }
+
+        function hidePictureChoices() {
+            const container = document.getElementById('pictureChoices');
+            container.classList.remove('active');
+            container.innerHTML = '';
+        }
+
+        function handlePictureChoice(option, btn) {
+            if (wordLocked) return;
+            if (option.image === currentWord.image) {
+                btn.classList.add('correct');
+                wordComplete();
+            } else {
+                // Fel bild: skaka och låt barnet försöka igen
+                playSound('click');
+                btn.classList.remove('wrong');
+                void btn.offsetWidth;
+                btn.classList.add('wrong');
+            }
+        }
+
+        // ── Bokstavsanimation ───────────────────────────────────────
+        function displayWordWithTypewriter(word) {
+            wordText.innerHTML = '';
+            [...word].forEach((char, i) => {
+                const span = document.createElement('span');
+                span.className = 'word-char';
+                span.textContent = char;
+                span.style.animationDelay = (i * 0.15) + 's';
+                wordText.appendChild(span);
+            });
+        }
+
+        function toggleTypewriter() {
+            gameState.typewriterEffect = !gameState.typewriterEffect;
+            updateTypewriterButton();
+            saveGame();
+        }
+
+        function updateTypewriterButton() {
+            const btn = document.getElementById('typewriterBtn');
+            btn.classList.toggle('on', gameState.typewriterEffect);
+            document.getElementById('typewriterState').textContent = gameState.typewriterEffect ? 'PÅ' : 'AV';
+        }
+
+        // ── Diplom ──────────────────────────────────────────────────
+        function showDiploma() {
+            document.getElementById('diplomaName').textContent = getPlayerName();
+            document.getElementById('diplomaWords').textContent = gameState.totalWordsRead;
+            document.getElementById('diplomaPlanets').textContent = gameState.visitedDestinations.length;
+            document.getElementById('diplomaStars').textContent = gameState.totalStars;
+            document.getElementById('diplomaDate').textContent =
+                new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' });
+            planetScreen.classList.remove('active');
+            document.getElementById('diplomaScreen').classList.add('active');
+        }
+
+        function closeDiplomaAndReplay() {
+            document.getElementById('diplomaScreen').classList.remove('active');
+            resetForReplay();
+        }
+
         // Save/Load game
         function saveGame() {
             localStorage.setItem('liamsRymdaventyr', JSON.stringify(gameState));
@@ -2817,6 +3346,8 @@
             const saved = localStorage.getItem('liamsRymdaventyr');
             if (saved) {
                 gameState = { ...gameState, ...JSON.parse(saved) };
+                // Säkerställ giltigt ordläge från äldre sparfiler
+                if (!['read', 'picture'].includes(gameState.wordMode)) gameState.wordMode = 'read';
             }
         }
 
@@ -2825,6 +3356,7 @@
             createStarfield();
             loadGame();
             initMusic();
+            applyPlayerName();
             
             // Update audio button
             document.getElementById('audioBtn').textContent = gameState.audioEnabled ? '🔊' : '🔇';

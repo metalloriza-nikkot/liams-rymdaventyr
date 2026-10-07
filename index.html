@@ -1783,7 +1783,14 @@
         .sticker-toast-title { font-size: 0.8rem; color: var(--star-yellow); letter-spacing: 2px; }
         .sticker-toast-name { font-size: 1.2rem; font-weight: 700; }
 
+        /* Långa planetskärmar ska gå att scrolla (centrerat när det får plats) */
+        .planet-screen { overflow-y: auto; justify-content: flex-start; padding-top: 20px; padding-bottom: 20px; }
+        .planet-screen > :first-child { margin-top: auto; }
+        .planet-screen > :last-child { margin-bottom: auto; }
+
         @media (max-width: 768px) {
+            .stats-bar { flex-wrap: wrap; justify-content: center; gap: 8px 14px; }
+            .meteor::before { width: 36px; }
             .story-nova { width: 140px; height: 160px; }
             .celebration-nova { width: 110px; height: 126px; }
             .planet-nova { width: 60px; height: 70px; }

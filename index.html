@@ -347,6 +347,8 @@
 
         .action-buttons {
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
         }
 
@@ -1012,6 +1014,9 @@
         /* Glowing stars effect for story */
         .story-stars {
             position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
             width: 100%;
             height: 100%;
             pointer-events: none;
@@ -1794,7 +1799,6 @@
             .story-nova { width: 140px; height: 160px; }
             .celebration-nova { width: 110px; height: 126px; }
             .planet-nova { width: 60px; height: 70px; }
-            .planet-icon .planet-orb { transform: scale(0.7); }
             .travel-title { font-size: 1.5rem; }
             .travel-track { height: 220px; }
             .travel-rocket { width: 64px; }
@@ -1804,6 +1808,203 @@
             .word-choice { font-size: 1.1rem; padding: 12px 14px; letter-spacing: 2px; }
             .letter-choice { width: 70px; height: 70px; font-size: 2rem; }
             .sticker { width: 74px; height: 74px; font-size: 2.2rem; }
+        }
+
+        /* ── INSTÄLLNINGSMENY (⚙️) ──────────────────────── */
+        .menu-wrap { position: relative; }
+        .menu-btn {
+            width: 46px;
+            height: 46px;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .settings-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 250px;
+            padding: 8px;
+            background: var(--space-mid);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            z-index: 80;
+        }
+        .settings-menu.open { display: block; }
+        .settings-menu button {
+            display: block;
+            width: 100%;
+            padding: 14px 16px;
+            text-align: left;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            color: var(--text-light);
+            background: none;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .settings-menu button:hover { background: rgba(255, 255, 255, 0.08); }
+        .settings-menu hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.12); margin: 6px 0; }
+        /* Under spelet ligger knapparna i menyn i stället för att sväva över spelet */
+        body.in-game #audioBtn,
+        body.in-game #musicBtn,
+        body.in-game #typewriterBtn,
+        body.in-game #parentBtn { display: none !important; }
+        body.in-game .header { padding-right: 40px; }
+        body.in-game .game-container { padding-bottom: 0; }
+
+        /* ── RESRAD OCH BRÄNSLEMÄTARE (mobil/iPad) ───────── */
+        .journey { display: none; }
+        .fuel { display: none; }
+        .journey {
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 12px 0;
+        }
+        .journey-stop { position: relative; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; opacity: 0.35; }
+        .journey-stop.visited { opacity: 1; }
+        .journey-stop.current { opacity: 1; width: 38px; height: 38px; }
+        .journey-stop.current::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--star-yellow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .journey-stop .journey-check {
+            position: absolute;
+            right: -3px;
+            bottom: -3px;
+            font-size: 0.65rem;
+            background: var(--success-green);
+            color: #052e16;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            line-height: 14px;
+            text-align: center;
+            font-weight: 700;
+        }
+        .journey-line { flex: 1; max-width: 22px; height: 2px; background: rgba(255, 255, 255, 0.2); }
+        .journey-line.done { background: var(--success-green); }
+        .fuel { align-items: center; justify-content: center; gap: 10px; margin-top: 6px; font-size: 0.95rem; color: var(--text-dim); }
+        .fuel-track { width: 140px; height: 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+        .fuel-fill { height: 100%; width: 0; border-radius: 6px; background: linear-gradient(90deg, var(--rocket-orange), var(--star-yellow)); transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        #fuelText { color: var(--star-yellow); font-weight: 600; }
+
+        /* ── HELSKÄRMSVYER GÅR ATT SKROLLA NÄR DE ÄR HÖGA ── */
+        .parent-modal, .story-screen, .name-screen, .start-screen {
+            overflow-y: auto;
+            justify-content: flex-start;
+        }
+        .parent-modal > :first-child, .story-screen > .story-container, .name-screen > :first-child, .start-screen > :first-child { margin-top: auto; }
+        .parent-modal > :last-child, .story-screen > .story-container, .name-screen > :last-child, .start-screen > :last-child { margin-bottom: auto; }
+        .parent-modal { padding: 20px 0; }
+        .diploma-screen { align-items: flex-start; }
+        .diploma { margin: auto; }
+
+        /* ── SPELSKÄRMEN UTAN SKROLL PÅ MOBIL OCH IPAD ───── */
+        @media (max-width: 1024px) {
+            .map-panel, .rocket-panel { display: none; }
+            .journey, .fuel { display: flex; }
+            .main-area { padding: 8px 16px 16px; gap: 0; }
+            .word-panel { gap: 18px; justify-content: flex-start; }
+            body.in-game .header { padding: 12px 16px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+        }
+        @media (max-width: 768px) {
+            body.in-game .logo { display: none; }
+            body.in-game .header { flex-wrap: nowrap; }
+            .stats-bar { flex-wrap: nowrap; gap: 10px; }
+            .stat-planets { display: none; }  /* resraden visar planeterna */
+            .sticker-btn, .streak-display { white-space: nowrap; }
+            .stat { font-size: 0.95rem; gap: 4px; }
+            .stat-icon { font-size: 1.1rem; }
+            .stat-label { display: none; }
+            .sticker-btn { padding: 4px 10px; font-size: 0.95rem; }
+            .streak-display { padding: 3px 8px; font-size: 0.85rem; }
+            .menu-btn { width: 40px; height: 40px; font-size: 1.25rem; }
+            .mission-banner { padding: 6px 12px; }
+            .mission-text { font-size: 0.85rem; }
+            .banner-nova { width: 22px; height: 26px; margin-right: 4px; }
+            .destination-label { display: none; }
+            .destination-name { font-size: 1.4rem; }
+            .current-destination { margin-bottom: 0; }
+            .word-panel { gap: 14px; }
+            .word-card { width: 100%; max-width: 420px; padding: 18px 16px; border-radius: 24px; }
+            .word-image { font-size: 2.8rem; margin-bottom: 8px; }
+            /* Långa ord krymper så att de får plats på kortet */
+            .word-text {
+                font-size: min(2.4rem, calc(((100vw - 80px) / var(--word-len, 4) - 4px) / 0.62));
+                letter-spacing: 4px;
+            }
+            .word-hint { margin-top: 8px; font-size: 0.9rem; }
+            .action-buttons { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; max-width: 420px; }
+            .action-buttons .btn-primary { flex-basis: 100%; }
+            .action-buttons .btn-secondary, .action-buttons .btn-hint { flex: 1; padding: 13px 10px; font-size: 1rem; }
+            .picture-skip { margin-top: 0; }
+            .picture-skip .btn { padding: 12px 28px; font-size: 1rem; }
+            .picture-btn { font-size: 2.6rem; padding: 12px 16px; }
+            .picture-choices { gap: 10px; flex-wrap: nowrap; }
+        }
+        /* Låga skärmar (t.ex. mobil med webbläsarens verktygsrad) */
+        @media (max-width: 768px) and (max-height: 700px) {
+            .word-image { font-size: 2.2rem; margin-bottom: 4px; }
+            .word-panel { gap: 10px; }
+            .journey { padding-top: 6px; }
+            .story-nova { width: 96px; height: 110px; margin-bottom: 4px; }
+            .story-text { font-size: 1rem; line-height: 1.6; padding: 14px; margin-bottom: 14px; }
+            .story-character-name { font-size: 1.3rem; margin-bottom: 8px; }
+            .word-text:has(.word-mystery) { font-size: 1.4rem; }
+            .story-screen { padding: 16px; }
+            .btn-story { padding: 12px 22px; white-space: nowrap; }
+            .story-dots { margin-bottom: 16px; }
+            .planet-icon { margin-bottom: 12px; }
+            .planet-title { font-size: 1.7rem; margin-bottom: 10px; }
+            .planet-fact { font-size: 1rem; line-height: 1.55; padding: 16px; margin-bottom: 18px; }
+            .planet-nova { width: 50px; height: 58px; margin-right: 10px; }
+            .btn-continue { padding: 14px 32px; font-size: 1.1rem; }
+            .picture-skip .btn { padding: 10px 24px; }
+        }
+
+        /* Ordval: långa ord får radbrytas (2 + 1) i stället för att gå utanför skärmen */
+        .picture-choices:has(.word-choice) { flex-wrap: wrap; }
+        @media (max-width: 768px) {
+            .word-choice { font-size: 1rem; letter-spacing: 1px; padding: 11px 14px; }
+            .letter-choice { width: 64px; height: 64px; font-size: 1.8rem; }
+        }
+
+        /* ── DATOR OCH IPAD LIGGANDE ────────────────────── */
+        @media (min-width: 1025px) {
+            /* Långa ord krymper så att ordkortet ryms i mittenkolumnen */
+            .word-text {
+                font-size: min(4rem, calc(((50vw - 200px) / var(--word-len, 4) - 8px) / 0.62));
+                letter-spacing: 8px;
+            }
+        }
+        @media (min-width: 1025px) and (max-height: 950px) {
+            body.in-game .header { padding-top: 12px; padding-bottom: 12px; }
+            .mission-banner { padding: 6px 30px; }
+            .main-area { padding: 10px 40px; }
+            .word-panel { gap: 18px; }
+            .word-card { padding: 28px 60px; }
+            .word-image { font-size: 3.5rem; margin-bottom: 8px; }
+            .word-text { font-size: min(3.2rem, calc(((50vw - 200px) / var(--word-len, 4) - 8px) / 0.62)); }
+            .word-hint { margin-top: 10px; }
+            .btn { padding: 16px 36px; }
+            .picture-btn { font-size: 3rem; padding: 12px 18px; }
+            .letter-choice { width: 76px; height: 76px; font-size: 2.2rem; }
+            .word-choice { font-size: 1.4rem; padding: 12px 20px; }
+            .rocket-container { transform: scale(0.75); }
+            .map-title { margin-bottom: 10px; }
+            .space-map { gap: 8px; padding: 14px; }
+            .map-item { padding: 7px 16px; }
         }
     </style>
 </head>
@@ -1863,22 +2064,32 @@
             <div class="stats-bar">
                 <div class="stat">
                     <span class="stat-icon">📖</span>
-                    <span>Ord lästa: </span>
+                    <span class="stat-label">Ord lästa: </span>
                     <span class="stat-value" id="totalWords">0</span>
                 </div>
-                <div class="stat">
+                <div class="stat stat-planets">
                     <span class="stat-icon">🌍</span>
-                    <span>Platser: </span>
+                    <span class="stat-label">Platser: </span>
                     <span class="stat-value" id="totalPlanets">0</span>
                 </div>
                 <div class="stat">
                     <span class="stat-icon">⭐</span>
-                    <span>Stjärnljus: </span>
+                    <span class="stat-label">Stjärnljus: </span>
                     <span class="stat-value" id="totalStars">0</span>
                 </div>
                 <button class="sticker-btn" onclick="openStickerBook()" title="Klistermärken">📒 <span id="stickerCount">0</span>/<span id="stickerTotal">0</span></button>
                 <div class="stat" id="streakStat" style="display: none;">
                     <span class="streak-display" id="streakDisplay">🔥 0 i rad</span>
+                </div>
+            </div>
+            <div class="menu-wrap">
+                <button class="menu-btn" id="menuBtn" onclick="toggleMenu(event)" aria-label="Inställningar">⚙️</button>
+                <div class="settings-menu" id="settingsMenu">
+                    <button onclick="menuAction(toggleAudio)" id="menuAudio">🔊 Ljud: PÅ</button>
+                    <button onclick="menuAction(toggleFocusMusic)" id="menuMusic">🎵 Musik: PÅ</button>
+                    <button onclick="menuAction(toggleTypewriter)" id="menuTypewriter">✨ Bokstavsanimation: PÅ</button>
+                    <hr>
+                    <button onclick="menuAction(openParentModal)">👨‍👩‍👧 Föräldraläge</button>
                 </div>
             </div>
         </header>
@@ -1889,6 +2100,9 @@
                 <span id="missionText">NOVA: "Läs orden för att ladda raketen med ordkraft!"</span>
             </div>
         </div>
+
+        <!-- Resrad med planeterna (mobil/iPad) -->
+        <div class="journey" id="journey"></div>
 
         <main class="main-area">
             <!-- Rocket Panel -->
@@ -1918,6 +2132,11 @@
                         <div id="destinationOrb"></div>
                         <div class="destination-name" id="destinationName">MÅNEN</div>
                     </div>
+                    <div class="fuel" aria-label="Ordkraft i raketen">
+                        <span>🚀</span>
+                        <div class="fuel-track"><div class="fuel-fill" id="fuelFill"></div></div>
+                        <span id="fuelText">0/5</span>
+                    </div>
                 </div>
 
                 <div class="word-card">
@@ -1930,14 +2149,12 @@
                 <div class="action-buttons" id="readButtons">
                     <button class="btn btn-primary" onclick="wordComplete()">JAG KAN LÄSA DET! ✓</button>
                     <button class="btn btn-secondary" onclick="skipWord()">NYTT ORD →</button>
+                    <button class="btn btn-hint" id="hintBtn" onclick="showHint()" style="display: none;">💡 LEDTRÅD</button>
                 </div>
                 <!-- Bildläge -->
                 <div class="picture-choices" id="pictureChoices"></div>
                 <div class="picture-skip" id="pictureSkip">
                     <button class="btn btn-secondary" onclick="skipWord()">NYTT ORD →</button>
-                </div>
-                <div style="margin-top: 15px;">
-                    <button class="btn btn-hint" id="hintBtn" onclick="showHint()" style="display: none;">💡 LEDTRÅD</button>
                 </div>
             </div>
 
@@ -2855,6 +3072,7 @@
 
         // Initialize space map
         function createSpaceMap() {
+            renderJourney();
             const spaceMap = document.getElementById('spaceMap');
             spaceMap.innerHTML = '';
             
@@ -2899,6 +3117,8 @@
             });
             
             document.getElementById('rocketProgress').textContent = current;
+            document.getElementById('fuelFill').style.width = Math.min(100, current / needed * 100) + '%';
+            document.getElementById('fuelText').textContent = Math.min(current, needed) + '/' + needed;
             document.getElementById('rocketTotal').textContent = needed;
         }
 
@@ -2959,6 +3179,7 @@
 
             if (mode === 'word') {
                 // Bilden visas – barnet väljer rätt ord
+                wordText.style.setProperty('--word-len', 5);
                 wordText.innerHTML = '<span class="word-mystery">? ? ?</span>';
                 wordImage.textContent = currentWord.image;
                 wordImage.style.opacity = '1';
@@ -3165,13 +3386,14 @@
 
         // Show planet arrival
         function showPlanetArrival(dest) {
-            const arrivalIndex = gameState.visitedDestinations.length - 1;
+            const arrivalIndex = DESTINATIONS.indexOf(dest);
             const novaMessage = ARRIVAL_MESSAGES[Math.min(arrivalIndex, ARRIVAL_MESSAGES.length - 1)];
             
             // Slumpa en fakta från listan
             const randomFact = dest.facts[Math.floor(Math.random() * dest.facts.length)];
             
-            document.getElementById('planetIcon').innerHTML = planetOrb(dest.id, 170);
+            // Mindre planet på mobil så att allt får plats utan att skrolla
+            document.getElementById('planetIcon').innerHTML = planetOrb(dest.id, innerWidth <= 768 ? 110 : 170);
             document.getElementById('planetTitle').textContent = dest.name;
             document.getElementById('planetTitle').style.color = dest.color;
             
@@ -3289,6 +3511,7 @@
             
             // Show music button
             document.getElementById('musicBtn').style.display = 'block';
+            document.body.classList.add('in-game');
             document.getElementById('typewriterBtn').style.display = 'block';
             updateTypewriterButton();
             applyPlayerName();
@@ -3530,7 +3753,7 @@
             const display = document.getElementById('streakDisplay');
             if (streak >= 2) {
                 stat.style.display = 'flex';
-                display.textContent = '🔥 ' + streak + ' i rad';
+                display.innerHTML = '🔥 ' + streak + '<span class="stat-label"> i rad</span>';
                 display.classList.toggle('streak-active', streak >= 3);
             } else {
                 stat.style.display = 'none';
@@ -4088,6 +4311,7 @@
 
         // ── Ordet på kortet (med valfri bokstavsanimation och lucka) ─
         function renderWord(word, gapIndex) {
+            wordText.style.setProperty('--word-len', word.length);
             wordText.innerHTML = '';
             [...word].forEach((char, i) => {
                 const span = document.createElement('span');
@@ -4196,6 +4420,49 @@
         function closeStickerBook() {
             playSound('click');
             document.getElementById('stickerBook').classList.remove('active');
+        }
+
+        // ── Inställningsmeny ────────────────────────────────────────
+        function toggleMenu(event) {
+            event.stopPropagation();
+            playSound('click');
+            updateMenuLabels();
+            document.getElementById('settingsMenu').classList.toggle('open');
+        }
+
+        function closeMenu() {
+            document.getElementById('settingsMenu').classList.remove('open');
+        }
+
+        function menuAction(action) {
+            action();
+            updateMenuLabels();
+            if (action === openParentModal) closeMenu();
+        }
+
+        function updateMenuLabels() {
+            document.getElementById('menuAudio').textContent = gameState.audioEnabled ? '🔊 Ljud: PÅ' : '🔇 Ljud: AV';
+            document.getElementById('menuMusic').textContent = gameState.musicEnabled ? '🎵 Musik: PÅ' : '🎵 Musik: AV';
+            document.getElementById('menuTypewriter').textContent = '✨ Bokstavsanimation: ' + (gameState.typewriterEffect ? 'PÅ' : 'AV');
+        }
+
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.menu-wrap')) closeMenu();
+        });
+
+        // ── Resrad med planeterna (mobil/iPad) ──────────────────────
+        function renderJourney() {
+            const journey = document.getElementById('journey');
+            journey.innerHTML = DESTINATIONS.map((dest, index) => {
+                const visited = gameState.visitedDestinations.includes(dest.id);
+                const current = index === gameState.currentDestinationIndex;
+                const line = index > 0
+                    ? `<div class="journey-line ${gameState.visitedDestinations.includes(DESTINATIONS[index - 1].id) ? 'done' : ''}"></div>`
+                    : '';
+                return `${line}<div class="journey-stop ${visited ? 'visited' : ''} ${current ? 'current' : ''}" title="${dest.name}">
+                    ${planetOrb(dest.id, current ? 32 : 24)}${visited ? '<span class="journey-check">✓</span>' : ''}
+                </div>`;
+            }).join('');
         }
 
         // Save/Load game
